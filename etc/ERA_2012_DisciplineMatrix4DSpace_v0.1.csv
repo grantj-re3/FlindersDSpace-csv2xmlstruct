@@ -1,0 +1,180 @@
+cluster_abbrev,for_code,for_title
+MIC,01,Mathematical Sciences
+MIC,0101,Pure Mathematics
+MIC,0102,Applied Mathematics
+MIC,0103,Numerical and Computational Mathematics
+MIC,0104,Statistics
+MIC,0105,Mathematical Physics
+MIC,0199,Other Mathematical Sciences
+PCE,02,Physical Sciences
+PCE,0201,Astronomical and Space Sciences
+PCE,0202,"Atomic, Molecular, Nuclear, Particle and Plasma Physics"
+PCE,0203,Classical Physics
+PCE,0204,Condensed Matter Physics
+PCE,0205,Optical Physics
+PCE,0206,Quantum Physics
+PCE,0299,Other Physical Sciences
+PCE,03,Chemical Sciences
+PCE,0301,Analytical Chemistry
+PCE,0302,Inorganic Chemistry
+PCE,0303,Macromolecular and Materials Chemistry
+PCE,0304,Medicinal and Biomolecular Chemistry
+PCE,0305,Organic Chemistry
+PCE,0306,Physical Chemistry (incl. Structural)
+PCE,0307,Theoretical and Computational Chemistry
+PCE,0399,Other Chemical Sciences
+PCE,04,Earth Sciences
+PCE,0401,Atmospheric Sciences
+PCE,0402,Geochemistry
+PCE,0403,Geology
+PCE,0404,Geophysics
+PCE,0405,Oceanography
+PCE,0406,Physical Geography and Environmental Geoscience
+PCE,0499,Other Earth Sciences
+EE,05,Environmental Sciences
+EE,0501,Ecological Applications
+EE,0502,Environmental Science and Management
+EE,0503,Soil Sciences
+EE,0599,Other Environmental Sciences
+BB,06,Biological Sciences
+BB,0601,Biochemistry and Cell Biology
+BB,0602,Ecology
+BB,0603,Evolutionary Biology
+BB,0604,Genetics
+BB,0605,Microbiology
+BB,0606,Physiology
+BB,0607,Plant Biology
+BB,0608,Zoology
+BB,0699,Other Biological Sciences
+BB,07,Agriculture and Veterinary Sciences
+BB,0701,"Agriculture, Land and Farm Management"
+BB,0702,Animal Production
+BB,0703,Crop and Pasture Production
+BB,0704,Fisheries Sciences
+BB,0705,Forestry Sciences
+BB,0706,Horticultural Production
+BB,0707,Veterinary Sciences
+BB,0799,Other Agricultural and Veterinary Sciences
+MIC,08,Information and Computing Sciences
+MIC,0801,Artificial Intelligence and Image Processing
+MIC,0802,Computation Theory and Mathematics
+MIC,0803,Computer Software
+MIC,0804,Data Format
+MIC,0805,Distributed Computing
+MIC,0806,Information Systems
+MIC,0807,Library and Information Studies
+MIC,0899,Other Information and Computing Sciences
+EE,09,Engineering
+EE,0901,Aerospace Engineering
+EE,0902,Automotive Engineering
+EE,0903,Biomedical Engineering
+EE,0904,Chemical Engineering
+EE,0905,Civil Engineering
+EE,0906,Electrical and Electronic Engineering
+EE,0907,Environmental Engineering
+EE,0908,Food Sciences
+EE,0909,Geomatic Engineering
+EE,0910,Manufacturing Engineering
+EE,0911,Maritime Engineering
+EE,0912,Materials Engineering
+EE,0913,Mechanical Engineering
+EE,0914,Resources Engineering and Extractive Metallurgy
+EE,0915,Interdisciplinary Engineering
+EE,0999,Other Engineering
+***,10,Technology
+BB,1001,Agricultural Biotechnology
+BB,1002,Environmental Biotechnology
+BB,1003,Industrial Biotechnology
+MHS,1004,Medical Biotechnology
+EE,1005,Communications Technologies
+EE,1006,Computer Hardware
+EE,1007,Nanotechnology
+EE,1099,Other Technology
+MHS,11,Medical and Health Sciences
+MHS,1101,Medical Biochemistry and Metabolomics
+MHS,1102,Cardiovascular Medicine and Haematology
+MHS,1103,Clinical Sciences
+MHS,1104,Complementary and Alternative Medicine
+MHS,1105,Dentistry
+MHS,1106,Human Movement and Sports Science
+MHS,1107,Immunology
+MHS,1108,Medical Microbiology
+MHS,1109,Neurosciences
+MHS,1110,Nursing
+MHS,1111,Nutrition and Dietetics
+MHS,1112,Oncology and Carcinogenesis
+MHS,1113,Ophthalmology and Optometry
+MHS,1114,Paediatrics and Reproductive Medicine
+MHS,1115,Pharmacology and Pharmaceutical Sciences
+MHS,1116,Medical Physiology
+MHS,1117,Public Health and Health Services
+MHS,1199,Other Medical and Health Sciences
+HCA,12,Built Environment and Design
+HCA,1201,Architecture
+HCA,1202,Building
+HCA,1203,Design Practice and Management
+HCA,1204,Engineering Design
+HCA,1205,Urban and Regional Planning
+HCA,1299,Other Built Environment and Design
+EHS,13,Education 
+EHS,1301,Education Systems
+EHS,1302,Curriculum and Pedagogy
+EHS,1303,Specialist Studies in Education
+EHS,1399,Other Education
+EC,14,Economics
+EC,1401,Economic Theory
+EC,1402,Applied Economics
+EC,1403,Econometrics
+EC,1499,Other Economics
+EC,15,"Commerce, Management, Tourism and Services"
+EC,1501,"Accounting, Auditing and Accountability"
+EC,1502,"Banking, Finance and Investment"
+EC,1503,Business and Management
+EC,1504,Commercial Services
+EC,1505,Marketing
+EC,1506,Tourism
+EC,1507,Transportation and Freight Services
+EC,1599,"Other Commerce, Management, Tourism and Services"
+EHS,16,Studies in Human Society
+EHS,1601,Anthropology
+EHS,1602,Criminology
+EHS,1603,Demography
+EHS,1604,Human Geography
+EHS,1605,Policy and Administration
+EHS,1606,Political Science
+EHS,1607,Social Work
+EHS,1608,Sociology
+EHS,1699,Other studies in Human Society
+MHS,17,Psychology and Cognitive Sciences
+MHS,1701,Psychology
+MHS,1702,Cognitive Science
+MHS,1799,Other Psychology and Cognitive Science
+HCA,18,Law and Legal Studies
+HCA,1801,Law
+HCA,1802,Maori Law
+HCA,1899,Other Law and Legal Studies
+HCA,19,Studies in Creative Arts and Writing
+HCA,1901,Art Theory and Criticism
+HCA,1902,"Film, Television and Digital Media"
+HCA,1903,Journalism and Professional Writing
+HCA,1904,Performing Arts and Creative Writing
+HCA,1905,Visual Arts and Crafts
+HCA,1999,Other Studies in Creative Arts and Writing
+HCA,20,"Language, Communication and Culture"
+HCA,2001,Communication and Media Studies
+HCA,2002,Cultural Studies
+HCA,2003,Language Studies
+HCA,2004,Linguistics
+HCA,2005,Literary Studies
+HCA,2099,"Other Language, Literature and Culture"
+HCA,21,History and Archaeology
+HCA,2101,Archaeology
+HCA,2102,Curatorial and Related Studies
+HCA,2103,Historical Studies
+HCA,2199,Other History and Archaeology
+HCA,22,Philosophy and Religious Studies
+HCA,2201,Applied Ethics
+HCA,2202,History and Philosophy of Specific Fields
+HCA,2203,Philosophy
+HCA,2204,Religion and Religious Studies
+HCA,2299,Other Philosophy and Religious Studies

@@ -12,7 +12,7 @@ require 'collection'
 # A class to represent a DSpace community
 class Community
 
-  # Lookup table from ERA cluster-codes to cluster-descriptions
+  # Lookup table from ERA cluster-abreviations to cluster-descriptions
   CLUSTER_ABBREVIATION2DESCRIPTION = {
     'PCE' => 'Cluster 1. Physical, Chemical and Earth Sciences',
     'HCA' => 'Cluster 2. Humanities and Creative Arts',

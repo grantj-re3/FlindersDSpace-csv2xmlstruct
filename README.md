@@ -25,6 +25,37 @@ suitable DSpace structure. The *Draft* Discipline Matrix for ERA 2015
 certainly appears to contain the required columns.
 
 
+Example usage
+-------------
+
+After installation and configuration, this program can be used as follows.
+
+This example assumes the repo has been downloaded to $HOME/opt/csv2xmlstruct
+and the instructions are being performed by the unprivileged unix user who
+owns $HOME.
+
+Create the XML file containing the structure from the CSV file.
+```
+mkdir ~/opt/csv2xmlstruct/result
+cd ~/opt/csv2xmlstruct/result
+../bin/csv2xmlstruct_wrap.sh > struct.xml
+```
+
+Create the DSpace structure under the top-level community
+defined by struct.xml.
+```
+# This command should be performed by a DSpace administrator
+/path/to/dspace structure-builder -f struct.xml -o struct_out.xml -e DSPACE_ADMIN_USER@example.com
+```
+
+Assuming you have an existing DSpace community (top-level or not)
+named say "ERA Publications" (eg. handle 123456789/0) and you wish to
+move the "ERA 2012 TEST" community (eg. handle 123456789/1)
+underneath it, you can do so with the command:
+```
+/path/to/dspace community-filiator --set --parent=123456789/0 --child=123456789/1
+```
+
 CSV file
 --------
 
@@ -60,43 +91,35 @@ ERA 2012 TEST [community]
 
 Notes:
 - Two-digit FoR codes are omitted by design. They can easily be
-  reinstated by updating the method skip_csv_line?() in lib/community.rb.
-- DSpace community and collection names can be built differently from CSV
-  fields by updating methods community_name() and collection_name()
-  respectively in lib/community.rb.
-- The ordering of sub-communities and collections within the XML file are
-  arbitrary (as they are derived from a Ruby hash) however the hierachy
-  is correctly maintained. However because DSpace displays the communities
-  and collections at the same level in alphabetic order, the order within
-  the XML file (and hence the handle sequence number) is not obvious to
-  the user. So I believe this is unlikely to matter at most institutions.
-- XML elements within a community or collection are also arbitrary (as
-  they are derived from the same Ruby hash). This has no adverse affect
-  on the resulting DSpace structure but can make the XML file difficult
-  for humans to read.
-
-Example usage
--------------
-
-After installation and configuration, this program can be used as follows.
-
-Create the XML file containing the structure from the CSV file.
-```
-bin/csv2xmlstruct_wrap.sh > struct.xml
-```
-
-Create the DSpace top-level community and structure beneath it as
-defined by struct.xml.
-```
-# This command should be performed by a DSpace administrator
-/path/to/dspace structure-builder -f struct.xml -o struct_out.xml -e DSPACE_ADMIN_USER@example.com
-```
-
-Assuming you have an existing DSpace community (top-level or not)
-named "ERA Publications" (eg. handle 123456789/0) and you wish to
-move the "ERA 2012 TEST" community (eg. handle 123456789/1)
-underneath it, you can do so with the command:
-```
-/path/to/dspace community-filiator --set --parent=123456789/0 --child=123456789/1
-```
+  reinstated by updating the method skip_csv_line?() in
+  lib/community.rb.
+- DSpace sub-community and collection names can be customised
+  differently (from CSV fields) by updating methods
+  community_name() and collection_name() respectively in
+  lib/community.rb. CLUSTER_ABBREVIATION2DESCRIPTION can also
+  be modified to produce different cluster/sub-community
+  descriptions.
+- If you wish to add optional XML elements to communities and
+  collections (eg. description, copyright, etc) you can modify
+  the following parts in the program.
+  * For the top-level community: update the
+    TOP_COMMUNITY_XML_ELEMENTS hash within bin/csv2xmlstruct.rb
+  * For the (cluster-based) sub-communities: update the
+    SUB_COMMUNITY_XML_ELEMENTS hash within lib/community.rb
+  * For the (FoR-based) collections: update the
+    COLLECTION_XML_ELEMENTS hash within lib/community.rb
+- XML elements within a community or collection are arbitrary (as
+  they are derived from a Ruby hash). This has no adverse affect
+  on the resulting DSpace structure but can make the XML file
+  difficult for humans to read.
+- The ordering of sub-communities and collections within the XML
+  file are also arbitrary (as they are derived from the same Ruby
+  hash) however the hierarchy is correctly maintained. Note that
+  because the DSpace web interface displays communities and
+  collections at the same hierarchical level in alphabetical
+  order, the order within the XML file does not affect web users.
+  As far as I am aware, the arbitrary ordering of sub-communities
+  and collections within the XML file will only affect the sequence
+  of the assigned handles, so I believe this is unlikely to matter
+  at most institutions.
 

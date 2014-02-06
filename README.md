@@ -46,6 +46,9 @@ defined by struct.xml.
 ```
 # This command should be performed by a DSpace administrator
 /path/to/dspace structure-builder -f struct.xml -o struct_out.xml -e DSPACE_ADMIN_USER@example.com
+
+# Optionally view the assigned handles/identifiers
+xmllint --format struct_out.xml
 ```
 
 Assuming you have an existing DSpace community (top-level or not)
@@ -118,8 +121,16 @@ Notes:
   because the DSpace web interface displays communities and
   collections at the same hierarchical level in alphabetical
   order, the order within the XML file does not affect web users.
-  As far as I am aware, the arbitrary ordering of sub-communities
-  and collections within the XML file will only affect the sequence
-  of the assigned handles, so I believe this is unlikely to matter
-  at most institutions.
+  As far as I can tell, the arbitrary ordering of sub-communities
+  and collections within the XML file will will not even affect
+  the sequence of the assigned handles as the
+  "dspace structure-builder" tool appears to apply alphabetical
+  ordering by name before assigning handles. You can see this
+  by viewing the "identifier" attribute of community and
+  collection elements in struct_out.xml.
+- For improved viewing of struct_out.xml, run it through an XML
+  viewer/parser such as xmllint. Eg.
+```
+  xmllint --format struct_out.xml
+```
 

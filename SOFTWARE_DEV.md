@@ -1,17 +1,22 @@
-FlindersDSpace-csv2xmlstruct Development Documentation
-======================================================
+Software development documentation for FlindersDSpace-csv2xmlstruct
+===================================================================
 
-Workflow
---------
+Data flow
+---------
 
-ERA_2012_DisciplineMatrix4DSpace_v0.1.csv
- -> [csv2xmlstruct_wrap.sh] -> struct.xml
- -> [dspace structure-builder] -> DSpace structure (top level community)
- -> [dspace community-filiator] -> DSpace structure (sub-community)
+* ERA_2012_DisciplineMatrix4DSpace_v0.1.csv ->
+* [csv2xmlstruct_wrap.sh] -> struct.xml ->
+* [dspace structure-builder] -> DSpace structure (top level community) ->
+* [dspace community-filiator] -> DSpace structure (sub-community)
+
+where
+* the flow is represented by an arrow ie. ->
+* the text in square brackets represents a process or program
+* the text not within square brackets represents the state of the data
 
 
-Algorithm for csv2xmlstruct.rb
-------------------------------
+Algorithm
+---------
 
 - Create top level community
 - Populate top level community with structure defined in CSV file as follows:
@@ -50,7 +55,7 @@ lib/community.rb
   * A list of collection objects contained within this community
 
 etc/ERA_2012_DisciplineMatrix4DSpace_v0.1.csv
-- CSV file containing the relevant columns of the ERA 2012 Discipline Matrix
+- CSV file containing the relevant columns of the ERA 2012 Discipline Matrix.
 
 etc/ERA_2012_DisciplineMatrix4DSpace_v0.1small.csv
 - A few lines of the above CSV file used for test purposes.
@@ -68,5 +73,5 @@ lib/libext/xmlsimple.rb
 
 lib/libext/licenses/LICENSE.fastercsv and 
 lib/libext/licenses/LICENSE.xmlsimple
-- License information for externally sourced libraries
+- License information for externally sourced libraries.
 

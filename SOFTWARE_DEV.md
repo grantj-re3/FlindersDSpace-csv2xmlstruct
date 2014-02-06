@@ -18,14 +18,15 @@ where
 Algorithm
 ---------
 
-- Create top level community
-- Populate top level community with structure defined in CSV file as follows:
+- Create the top level community
+- Populate the top level community with structure defined in CSV file
+  as follows:
   * The (eight) ERA clusters become DSpace sub-communities
-  * The FoR codes/titles associated with the given ERA cluster become
-    DSpace collections under the appropriate sub-community
-- Convert structure into XML format as follows:
-  * Convert the community/sub-community/collection object structure to
-    a nested hash (compatible with the XmlSimple class)
+  * Each FoR code/title associated with a given ERA cluster becomes a
+    DSpace collection under the appropriate (ERA cluster) sub-community
+- Convert the structure into XML format as follows:
+  * Convert the top-level-community/sub-community/collection object
+    structure into a nested hash (compatible with the XmlSimple class)
   * Use XmlSimple to convert the hash into XML
 
 
@@ -42,14 +43,14 @@ bin/csv2xmlstruct.rb
 lib/collection.rb
 - The ruby script defining the DSpace Collection class.
 - Collection objects consist of:
-  * A name (mandatory XML element)
-  * Other key-value pairs (optional XML elements)
+  * A name (ie. a mandatory XML element)
+  * Other key-value pairs (ie. optional XML elements)
 
 lib/community.rb
 - The ruby script defining the DSpace Community class.
 - Community objects consist of:
-  * A name (mandatory XML element)
-  * Other key-value pairs (optional XML elements)
+  * A name (ie. a mandatory XML element)
+  * Other key-value pairs (ie. optional XML elements)
   * A list of other community objects (ie. sub-communities) contained 
     within this community
   * A list of collection objects contained within this community
@@ -62,14 +63,14 @@ etc/ERA_2012_DisciplineMatrix4DSpace_v0.1small.csv
 
 lib/libext/faster_csv.rb and lib/libext/fastercsv.rb
 - http://fastercsv.rubyforge.org
-- A library for processing CSV files.
+- An externally sourced library for processing CSV files.
 - Starting at ruby 1.9, the standard CSV library has been replaced 
   with FasterCSV. Because I am using ruby 1.8.7 I chose to use this
   library.
 
 lib/libext/xmlsimple.rb
 - http://xml-simple.rubyforge.org
-- A library for converting a hash to XML or XML to a hash.
+- An externally sourced library for converting a hash to XML or XML to a hash.
 
 lib/libext/licenses/LICENSE.fastercsv and 
 lib/libext/licenses/LICENSE.xmlsimple

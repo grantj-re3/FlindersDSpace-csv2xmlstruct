@@ -107,19 +107,23 @@ class Community
       puts "\n#{count} <<#{line.to_s.chomp}>>" if MDEBUG.include?(__method__)
       next if skip_csv_line?(line)
 
-      # Get and/or append the community derived from this CSV line
-      # under THIS community object.
+      # Get or create-and-append the sub-community derived from this
+      # CSV-line under THIS community object.
+      # Duplicate sub-community names are not permitted under THIS
+      # community object.
       comm_name = community_name(line, count)
-      comm = self.get_community_with_name?(comm_name)	# Duplicate names are not permitted
+      comm = self.get_community_with_name?(comm_name)
       unless comm
         comm = Community.new(comm_name, SUB_COMMUNITY_XML_ELEMENTS)
         self.append_community(comm)
       end
 
-      # Get and/or append the collection derived from this CSV line under
-      # the ABOVE community object, comm.
+      # Get or create-and-append the collection derived from this
+      # CSV-line under the ABOVE sub-community object, comm.
+      # Duplicate collection names are not permitted under the ABOVE
+      # sub-community object, comm.
       coll_name = collection_name(line, count)
-      coll = comm.get_collection_with_name?(coll_name)	# Duplicate names are not permitted
+      coll = comm.get_collection_with_name?(coll_name)
       unless coll
         coll = Collection.new(coll_name, COLLECTION_XML_ELEMENTS)
         comm.append_collection(coll)

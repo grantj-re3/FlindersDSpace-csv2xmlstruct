@@ -71,8 +71,6 @@ The purpose of this sample is to:
 Scenario:
 
 - You have a test environment to experiment with this app.
-- You have created a DSpace community (top-level or not) named say
-  "ERA Publications" (eg. handle 123456789/0)
 - You are happy with the constant declarations at the top of files:
   * bin/csv2xmlstruct.rb
   * lib/collection.rb

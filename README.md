@@ -34,15 +34,18 @@ This example assumes the repo has been downloaded to $HOME/opt/csv2xmlstruct
 and the instructions are being performed by the unprivileged unix user who
 owns $HOME.
 
-Create the XML file containing the structure from the CSV file.
+- Create the XML file containing the structure from the CSV file.
 ```
 mkdir ~/opt/csv2xmlstruct/result
 cd ~/opt/csv2xmlstruct/result
 ../bin/csv2xmlstruct_wrap.sh > struct.xml
 ```
 
-Create the DSpace structure under the top-level community
-defined by struct.xml.
+- Copy struct.xml to the DSpace test server (if you ran
+  csv2xmlstruct_wrap.sh on another host)
+
+- Create the DSpace structure under the top-level community
+  defined by struct.xml.
 ```
 # This command should be performed by a DSpace administrator
 /path/to/dspace structure-builder -f struct.xml -o struct_out.xml -e DSPACE_ADMIN_USER@example.com
@@ -51,10 +54,10 @@ defined by struct.xml.
 xmllint --format struct_out.xml
 ```
 
-Assuming you have an existing DSpace community (top-level or not)
-named say "ERA Publications" (eg. handle 123456789/0) and you wish to
-move the "ERA 2012 TEST" community (eg. handle 123456789/1)
-underneath it, you can do so with the command:
+- Assuming you have an existing DSpace community (top-level or not)
+  named say "ERA Publications" (eg. handle 123456789/0) and you wish to
+  move the "ERA 2012 TEST" community (eg. handle 123456789/1)
+  underneath it, you can do so with the command:
 ```
 /path/to/dspace community-filiator --set --parent=123456789/0 --child=123456789/1
 ```

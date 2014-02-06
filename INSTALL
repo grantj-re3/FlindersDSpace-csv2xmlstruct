@@ -1,0 +1,106 @@
+1. APPLICATION ENVIRONMENT
+
+- ruby 1.8.7 (2011-06-30 patchlevel 352) [x86_64-linux]
+- GNU bash, version 4.1.2(1)-release (x86_64-redhat-linux-gnu)
+- Red Hat Enterprise Linux Server release 6.5 (Santiago)
+- 2.6.32-279.19.1.el6.x86_64 #1 SMP Sat Nov 24 14:35:28 EST 2012 x86_64 x86_64 x86_64 GNU/Linux
+- DSpace 3.x
+
+If you cannot install the above ruby version to your Unix/Linux
+operating system from source or via your normal package management 
+system, consider using Ruby Version Manager at https://rvm.io.
+
+Since it is not a requirement that csv2xmlstruct.rb and
+csv2xmlstruct_wrap.sh be run on the same host where DSpace is running,
+I imagine someone may wish to run it on a Microsoft Windows platform.
+
+Although this software has not been designed to run under the Microsoft
+Windows operating system, it may be feasible under 2 scenarios.
+ - Install Cygwin (see http://www.cygwin.com) then run ruby and bash scripts
+   under that environment.
+ - Install Ruby 1.8.7 (I understand pik at https://github.com/vertiginous/pik
+   may be useful to install a particular version) then if required, rewrite
+   shell scripts in some Windows language (eg. as .BAT scripts)
+
+
+2. INSTALLATION
+
+
+2.1 WARNING
+
+- It is important to understand what the "dspace structure-builder" and
+  "dspace community-filiator" commands do before running them.
+  * Read the DSpace 3.x manual regarding the above commands.
+  * Experiment on a DSpace test server before running on a production
+    server.
+
+
+2.2 ASSUMPTIONS
+
+- That you have a basic understanding of Linux/Unix, Ruby and bash (or sh or
+  ksh) shell scripts.
+- That you are using a Linux, Unix or Unix-like environment similar to that
+  described under APPLICATION ENVIRONMENT.
+- You have DSpace installed as given under APPLICATION ENVIRONMENT.
+- You do *not* need to run this application on the same host as the DSpace
+  server, but it is probably more convenient if you do.
+
+
+2.3 INSTRUCTIONS
+
+- Download from github
+- Checkout latest version/tag if applicable
+- Update config for your site, in particular: ...
+- Run bin/csv2xmlstruct_wrap.sh to create the XML community/collection
+  file structure.
+- If required, copy the file structure to a DSpace test environment.
+- Run the "dspace structure-builder" script
+- If required, run the "dspace community-filiator" script
+
+
+3. EXAMPLES
+
+
+3.1 SAMPLE INSTALLATION AND TEST RUN
+
+The purpose of this sample is to:
+- show how to install and configure this application
+- show how to build the resulting structure in DSpace
+
+
+Scenario:
+
+- You have a test environment to experiment with this app.
+- You have created a DSpace community (top-level or not) named say
+  "ERA Publications" (eg. handle 123456789/0)
+- You are happy with the constant declarations at the top of files:
+  * bin/csv2xmlstruct.rb
+  * lib/collection.rb
+  * lib/community.rb
+- This application to be installed in $HOME/opt/csv2xmlstruct of an
+  unprivileged user.
+
+
+Instructions:
+
+mkdir ~/opt
+git clone https://github.com/grantj-re3/FlindersDSpace-csv2xmlstruct.git ~/opt/csv2xmlstruct
+cd ~/opt/csv2xmlstruct
+
+# If you want a particular version
+git tag # List tagged releases
+git checkout ... # Checkout the desired release
+
+# Read files INSTALL LICENSE README*
+
+
+# Update config for your site, ie. the constant declarations at the top of files:
+  * bin/csv2xmlstruct.rb
+  * lib/collection.rb
+  * lib/community.rb
+
+
+# Run the program as described in the "Example usage" section in README.md.
+
+# Celebrate!
+

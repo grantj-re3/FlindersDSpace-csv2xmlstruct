@@ -25,6 +25,16 @@ suitable DSpace structure. The *Draft* Discipline Matrix for ERA 2015
 certainly appears to contain the required columns.
 
 
+Application environment
+-----------------------
+Read the INSTALL file.
+
+
+Installation
+------------
+Read the INSTALL file.
+
+
 Example usage
 -------------
 
@@ -86,13 +96,13 @@ This program together with the above CSV file creates a structure like this:
 ```
 ERA 2012 TEST [community]
 
-- Cluster 6. Mathematical, Information and Computing Sciences [sub-community]
-  * 0101 - Pure Mathematics [collection]
-  * 0102 - Applied Mathematics [collection]
-
 - Cluster 1. Physical, Chemical and Earth Sciences [sub-community]
   * 0201 - Astronomical and Space Sciences [collection]
   * 0202 - Atomic, Molecular, Nuclear, Particle and Plasma Physics [collection]
+
+- Cluster 6. Mathematical, Information and Computing Sciences [sub-community]
+  * 0101 - Pure Mathematics [collection]
+  * 0102 - Applied Mathematics [collection]
 ```
 
 Notes:

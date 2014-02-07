@@ -6,23 +6,6 @@
 # Contributors: eResearch@Flinders, Library, Information Services, Flinders University.
 # See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
 #++ 
-#
-# CSV_PATH is expected to be a file with content which resembles that below
-# (derived from www.arc.gov.au/xls/era12/ERA_2012_Discipline_Matrix.xls).
-# "for_code" and "for_title" combinations must not be duplicated for a
-# given "cluster_abbrev".
-#
-#   cluster_abbrev,for_code,for_title
-#   MIC,01,Mathematical Sciences
-#   MIC,0101,Pure Mathematics
-#   MIC,0102,Applied Mathematics
-#   ...
-#   PCE,02,Physical Sciences
-#   PCE,0201,Astronomical and Space Sciences
-#   PCE,0202,"Atomic, Molecular, Nuclear, Particle and Plasma Physics"
-#   ...
-#
-# We can verify the XML result with the xmllint tool.
 ##############################################################################
 
 # Add dirs to the library path

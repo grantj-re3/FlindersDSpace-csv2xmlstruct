@@ -56,16 +56,27 @@ used to extract handle info for items, collections and communities by:
 - matching the id of the appropriate table with the resource_id in the handle table
 - specifying the correct resource_type_id value
 
-The resource_type_id do not seem to be defined in the database or documentation,
-but are defined in the source code at URL
+The resource_type_id values do not seem to be defined in the database or
+documentation, but are defined in the source code at URL
 https://svn.duraspace.org/dspace/dspace/trunk/dspace-api/src/main/java/org/dspace/core/Constants.java
-The values are:
-- BITSTREAM = 0
-- BUNDLE = 1
-- ITEM = 2
-- COLLECTION = 3
-- COMMUNITY = 4
-- SITE = 5
-- GROUP = 6
-- EPERSON = 7
+The values are given in the table below.
+
+resource_id meaning | resource_type_id value
+--------------------|-----------------------
+BITSTREAM           | 0
+BUNDLE              | 1
+ITEM                | 2
+COLLECTION          | 3
+COMMUNITY           | 4
+SITE                | 5
+GROUP               | 6
+EPERSON             | 7
+
+For example, to find handles for particular items, you might use the following
+SQL fragment.
+```
+  collection2item c2i 
+  ...
+  LEFT OUTER JOIN handle h on (c2i.item_id = h.resource_id and h.resource_type_id = 2)
+```
 

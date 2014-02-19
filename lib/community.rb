@@ -7,6 +7,7 @@
 require 'xmlsimple'
 require 'faster_csv'
 require 'collection'
+require 'object_extra'
 
 ##############################################################################
 # A class to represent a DSpace community
@@ -14,14 +15,25 @@ class Community
 
   # Lookup table from ERA cluster-abreviations to cluster-descriptions
   CLUSTER_ABBREVIATION2DESCRIPTION = {
-    'PCE' => 'Cluster 1. Physical, Chemical and Earth Sciences',
-    'HCA' => 'Cluster 2. Humanities and Creative Arts',
-    'EE'  => 'Cluster 3. Engineering and Environmental Sciences',
-    'EHS' => 'Cluster 4. Education and Human Society',
-    'EC'  => 'Cluster 5. Economics and Commerce',
-    'MIC' => 'Cluster 6. Mathematical, Information and Computing Sciences',
-    'BB'  => 'Cluster 7. Biological and Biotechnological Sciences',
-    'MHS' => 'Cluster 8. Medical and Health Sciences',
+    'PCE' => 'Physical, Chemical and Earth Sciences',
+    'HCA' => 'Humanities and Creative Arts',
+    'EE'  => 'Engineering and Environmental Sciences',
+    'EHS' => 'Education and Human Society',
+    'EC'  => 'Economics and Commerce',
+    'MIC' => 'Mathematical, Information and Computing Sciences',
+    'BB'  => 'Biological and Biotechnological Sciences',
+    'MHS' => 'Medical and Health Sciences',
+  }
+
+  CLUSTER_ABBREVIATION2NUMBER = {
+    'PCE' => 1,
+    'HCA' => 2,
+    'EE'  => 3,
+    'EHS' => 4,
+    'EC'  => 5,
+    'MIC' => 6,
+    'BB'  => 7,
+    'MHS' => 8,
   }
 
   # This class assumes the XML 'name' element:
@@ -35,9 +47,10 @@ class Community
   # given below. Note that 'name' is a mandatory XML element
   # and must not appear in this hash.
   SUB_COMMUNITY_XML_ELEMENTS = {
+    'description' => "Flinders' research in {{LOOKUP_CLUSTER_NAME}} as reported for ERA 2012.",
+    'intro'       => "<center><p>This community contains Flinders' research in {{LOOKUP_CLUSTER_NAME}} that has been collected for ERA 2012.</p>
+<p>Where copyright and other restrictions allow, full text content is available.</p></center>",
 =begin
-    'description' => 'Sub-community description',
-    'intro'       => 'Sub-community introduction',
     'copyright'   => 'Sub-community copyright text',
     'sidebar'     => 'Sub-community sidebar text'
 =end
@@ -47,15 +60,18 @@ class Community
   # given below. Note that 'name' is a mandatory XML element
   # and must not appear in this hash.
   COLLECTION_XML_ELEMENTS = {
+    'description' => "Flinders' research in {{CSV_FIELD_for_title}}, as reported for ERA 2012.",
+    'intro'       => "<p>This collection contains Flinders' research in {{CSV_FIELD_for_title}}, as reported for ERA 2012.</p>",
 =begin
-    'description' => 'Collection desc',
-    'intro'       => 'Collection intro',
     'copyright'   => 'Collection copyrt',
     'sidebar'     => 'Collection s/bar',
     'license'     => 'Collection lic',
     'provenance'  => 'Collection prov'
 =end
   }
+
+  CSV_FIELD_REGEX = /\{\{CSV_FIELD_([A-Za-z0-9_]+)\}\}/
+  LOOKUP_REGEX = /\{\{LOOKUP_([A-Za-z0-9_]+)\}\}/
 
   attr_reader :name, :child_comms, :child_colls
 
@@ -75,7 +91,7 @@ class Community
   #     'intro'       => 'My introduction'
   #   }
   #   c = Community.new('My community name', optional_elements)
-  def initialize(name, optional_xml_elements={})
+  def initialize(name, optional_xml_elements={}, csv_fields={})
     @name = name		# String
     @child_comms = []		# List of Community objects
     @child_colls = []		# List of Collection objects
@@ -87,6 +103,51 @@ class Community
         exit(2)
       end
     }
+    @csv_fields = csv_fields
+    replace_token_in_optional_xml_elements
+  end
+
+  ############################################################################
+  # If any values in the @opts hash contain tokens, this method replaces
+  # such tokens with the corresponding replacement string. ie. This method
+  # updates @opts.
+  def replace_token_in_optional_xml_elements
+    return if @opts.empty? || @csv_fields.empty?
+
+    @opts = @opts.deep_copy
+    @opts.each_value{|str| self.class.replace_token_in_string(str, @csv_fields) }
+  end
+
+  ############################################################################
+  # This method replaces special tokens within a string with other text.
+  # A token looks like "{{PREFIX_KEY}}". For a PREFIX of "CSV_FIELD",
+  # the token is replaced by the CSV field csv_fields[KEY] (where
+  # csv_fields is the hash in the second argument and KEY is a symbol 
+  # representing the CSV column name). Examples of such tokens include:
+  # - "{{CSV_FIELD_cluster_abbrev}}" for csv_fields[:cluster_abbrev]
+  # - "{{CSV_FIELD_for_code}}" for csv_fields[:for_code]
+  # - "{{CSV_FIELD_for_title}}" for csv_fields[:for_title]
+  #
+  # For a PREFIX of "LOOKUP", the token is replaced by some lookup
+  # related to the CSV field csv_fields[KEY]. Examples of such
+  # tokens include:
+  # - "{{LOOKUP_CLUSTER_NAME}}" for the cluster name associated
+  #   with csv_fields[:cluster_abbrev]
+  #
+  # This method returns a copy of the updated string.
+
+  def self.replace_token_in_string(string, csv_fields)
+    # Replace each match with corresponding CSV field
+    string.gsub!(CSV_FIELD_REGEX){|match| csv_fields[$1.to_sym] }
+
+    # Replace each match with lookup of corresponding CSV field
+    string.gsub!(LOOKUP_REGEX){|match|
+      case $1
+      when 'CLUSTER_NAME'
+        CLUSTER_ABBREVIATION2DESCRIPTION[ csv_fields[:cluster_abbrev] ]
+      end
+    }
+    string
   end
 
   ############################################################################
@@ -114,7 +175,7 @@ class Community
       comm_name = community_name(line, count)
       comm = self.get_community_with_name?(comm_name)
       unless comm
-        comm = Community.new(comm_name, SUB_COMMUNITY_XML_ELEMENTS)
+        comm = Community.new(comm_name, SUB_COMMUNITY_XML_ELEMENTS, line)
         self.append_community(comm)
       end
 
@@ -125,7 +186,7 @@ class Community
       coll_name = collection_name(line, count)
       coll = comm.get_collection_with_name?(coll_name)
       unless coll
-        coll = Collection.new(coll_name, COLLECTION_XML_ELEMENTS)
+        coll = Collection.new(coll_name, COLLECTION_XML_ELEMENTS, line)
         comm.append_collection(coll)
       end
     }
@@ -146,7 +207,9 @@ class Community
   # Returns community name for this CSV line. You can customise this method
   # to return the name of your choice.
   def community_name(csv_line, csv_line_count=nil)
-    comm_name = CLUSTER_ABBREVIATION2DESCRIPTION[ csv_line[:cluster_abbrev] ]	# Full cluster description
+    comm_name = sprintf("Cluster %d - %s",
+     CLUSTER_ABBREVIATION2NUMBER[ csv_line[:cluster_abbrev] ],
+     CLUSTER_ABBREVIATION2DESCRIPTION[ csv_line[:cluster_abbrev] ])
     unless comm_name
       STDERR.puts "Method: #{__method__}"
       STDERR.puts "ERROR:  Lookup for cluster code '#{csv_line[:cluster_abbrev]}' not found. See line:"

@@ -28,11 +28,12 @@ class Csv2XmlStruct
   CSV_PATH = "../etc/ERA_2012_DisciplineMatrix4DSpace_v0.1small.csv"
   CSV_DELIMITER = ','
 
-  TOP_COMMUNITY_NAME = 'ERA 2012 TEST'
+  TOP_COMMUNITY_NAME = 'ERA 2012 TEST 03'
   TOP_COMMUNITY_XML_ELEMENTS = {
+      'description' => "Flinders' research collected for ERA 2012.",
+      'intro'       => "<center><p>This community contains Flinders' research that has been collected for Excellence in Research for Australia (ERA) 2012, which applied to research undertaken between 1 January 2005 and 31 December 2010.</p>
+<p>Where copyright and other restrictions allow, full text content is available.</p></center>",
 =begin
-      'description' => 'Top community description',
-      'intro'       => 'Top community introduction',
       'copyright'   => 'Top community copyright text',
       'sidebar'     => 'Top community sidebar text'
 =end

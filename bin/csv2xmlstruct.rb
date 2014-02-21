@@ -24,21 +24,21 @@ MDEBUG = [
 # spreadsheet (in CSV format) to an XML file suitable for loading into
 # DSpace 3.x via the "dspace structure-builder" tool.
 class Csv2XmlStruct
+  ERA_YEAR = Community::ERA_YEAR
 
-  CSV_PATH = "../etc/ERA_2012_DisciplineMatrix4DSpace_v0.1small.csv"
+  CSV_PATH = "../etc/ERA_#{ERA_YEAR}_DisciplineMatrix4DSpace_v0.1.csv"
   CSV_DELIMITER = ','
 
-  TOP_COMMUNITY_NAME = 'ERA 2012 TEST 03'
+  TOP_COMMUNITY_NAME = "ERA #{ERA_YEAR}"
   TOP_COMMUNITY_XML_ELEMENTS = {
-      'description' => "Flinders' research collected for ERA 2012.",
-      'intro'       => "<center><p>This community contains Flinders' research that has been collected for Excellence in Research for Australia (ERA) 2012, which applied to research undertaken between 1 January 2005 and 31 December 2010.</p>
+      'description' => "Flinders' research collected for ERA #{ERA_YEAR}.",
+      'intro'       => "<center><p>This community contains Flinders' research that was collected for Excellence in Research for Australia (ERA) #{ERA_YEAR}, which applied to research undertaken between 1 January 2005 and 31 December 2010.</p>
 <p>Where copyright and other restrictions allow, full text content is available.</p></center>",
 =begin
       'copyright'   => 'Top community copyright text',
       'sidebar'     => 'Top community sidebar text'
 =end
   }
-
 
   ############################################################################
   # The main method for this program.

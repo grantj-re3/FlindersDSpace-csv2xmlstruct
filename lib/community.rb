@@ -4,14 +4,19 @@
 # See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
 #++ 
 
-require 'xmlsimple'
-require 'faster_csv'
-require 'collection'
-require 'object_extra'
-
 ##############################################################################
 # A class to represent a DSpace community
 class Community
+  # Define objects *before* they are referenced by 'required' files
+  ERA_YEAR = "2012"
+
+  require 'xmlsimple'
+  require 'faster_csv'
+  require 'collection'
+  require 'object_extra'
+
+  # Select if you want subcommunities to be ERA clusters or 2-digit FOR codes
+  SUB_COMMUNITY_TYPE = :for2digit		# :cluster or :for2digit
 
   # Lookup table from ERA cluster-abreviations to cluster-descriptions
   CLUSTER_ABBREVIATION2DESCRIPTION = {
@@ -25,6 +30,7 @@ class Community
     'MHS' => 'Medical and Health Sciences',
   }
 
+  # A number to be associated with each cluster
   CLUSTER_ABBREVIATION2NUMBER = {
     'PCE' => 1,
     'HCA' => 2,
@@ -36,6 +42,33 @@ class Community
     'MHS' => 8,
   }
 
+  # Lookup table from 2-digit Field of Research (FOR) codes to FOR Descriptions
+  FOR_CODE2DESCRIPTION = {
+    "01" => "Mathematical Sciences",
+    "02" => "Physical Sciences",
+    "03" => "Chemical Sciences",
+    "04" => "Earth Sciences",
+    "05" => "Environmental Sciences",
+    "06" => "Biological Sciences",
+    "07" => "Agricultural and Veterinary Sciences",
+    "08" => "Information and Computing Sciences",
+    "09" => "Engineering",
+    "10" => "Technology",
+    "11" => "Medical and Health Sciences",
+    "12" => "Built Environment and Design",
+    "13" => "Education",
+    "14" => "Economics",
+    "15" => "Commerce, Management, Tourism and Services",
+    "16" => "Studies in Human Society",
+    "17" => "Psychology and Cognitive Sciences",
+    "18" => "Law and Legal Studies",
+    "19" => "Studies in Creative Arts and Writing",
+    "20" => "Language, Communication and Culture",
+    "21" => "History and Archaeology",
+    "22" => "Philosophy and Religious Studies",
+  }
+
+
   # This class assumes the XML 'name' element:
   # - is mandatory (hence it does not appear in this list) and
   # - its value is unique.
@@ -46,9 +79,9 @@ class Community
   # Populate all sub-communities with the optional XML elements
   # given below. Note that 'name' is a mandatory XML element
   # and must not appear in this hash.
-  SUB_COMMUNITY_XML_ELEMENTS = {
-    'description' => "Flinders' research in {{LOOKUP_CLUSTER_NAME}} as reported for ERA 2012.",
-    'intro'       => "<center><p>This community contains Flinders' research in {{LOOKUP_CLUSTER_NAME}} that has been collected for ERA 2012.</p>
+  XML_ELEMENTS = {
+    'description' => "Flinders' research in {{LOOKUP_FOR_2DIGIT_NAME}} as reported for ERA #{ERA_YEAR}.",
+    'intro'       => "<center><p>This community contains Flinders' research in {{LOOKUP_FOR_2DIGIT_NAME}} that has been collected for ERA #{ERA_YEAR}.</p>
 <p>Where copyright and other restrictions allow, full text content is available.</p></center>",
 =begin
     'copyright'   => 'Sub-community copyright text',
@@ -56,36 +89,24 @@ class Community
 =end
   }
 
-  # Populate all collections with the optional XML elements
-  # given below. Note that 'name' is a mandatory XML element
-  # and must not appear in this hash.
-  COLLECTION_XML_ELEMENTS = {
-    'description' => "Flinders' research in {{CSV_FIELD_for_title}}, as reported for ERA 2012.",
-    'intro'       => "<p>This collection contains Flinders' research in {{CSV_FIELD_for_title}}, as reported for ERA 2012.</p>",
-=begin
-    'copyright'   => 'Collection copyrt',
-    'sidebar'     => 'Collection s/bar',
-    'license'     => 'Collection lic',
-    'provenance'  => 'Collection prov'
-=end
-  }
+  # Regular expressions for replacing tokens within a string.
+  # Tokens can comprise alpha-numerics and underscores.
+  CSV_FIELD_REGEX = /\{\{CSV_FIELD_([[:alnum:]_]+)\}\}/
+  LOOKUP_REGEX = /\{\{LOOKUP_([[:alnum:]_]+)\}\}/
 
-  CSV_FIELD_REGEX = /\{\{CSV_FIELD_([A-Za-z0-9_]+)\}\}/
-  LOOKUP_REGEX = /\{\{LOOKUP_([A-Za-z0-9_]+)\}\}/
+  # Exit codes for errors
+  ERROR_BASE = 100
+  ERROR_XML_ELEMENT_NAME		= ERROR_BASE + 1
+  ERROR_CLUSTER_CODE_LOOKUP		= ERROR_BASE + 2
+  ERROR_FORCODE2_LOOKUP			= ERROR_BASE + 3
+  ERROR_SUB_COMMUNITY_TYPE		= ERROR_BASE + 4
 
   attr_reader :name, :child_comms, :child_colls
 
   ############################################################################
   # Creates a Community object.
   #
-  # Invocation exmaple 1:
-  #   c = Community.new(
-  #     'My community name',			# Mandatory XML element
-  #     'description' => 'My description',	# Optional XML element
-  #     'intro'       => 'My introduction'	# Optional XML element
-  #   )
-  #
-  # Invocation exmaple 2:
+  # Invocation exmaple:
   #   optional_elements = {
   #     'description' => 'My description',
   #     'intro'       => 'My introduction'
@@ -100,7 +121,7 @@ class Community
     @opts.each_key{|k|
       unless OPTIONAL_ELEMENTS.include?(k)
         STDERR.puts "ERROR: XML element <#{k}> is not permitted as part of a #{self.class} in the object: #{inspect_more}"
-        exit(2)
+        exit(ERROR_XML_ELEMENT_NAME)
       end
     }
     @csv_fields = csv_fields
@@ -129,10 +150,13 @@ class Community
   # - "{{CSV_FIELD_for_title}}" for csv_fields[:for_title]
   #
   # For a PREFIX of "LOOKUP", the token is replaced by some lookup
-  # related to the CSV field csv_fields[KEY]. Examples of such
-  # tokens include:
+  # related to one of the CSV fields. Examples of such tokens include:
   # - "{{LOOKUP_CLUSTER_NAME}}" for the cluster name associated
   #   with csv_fields[:cluster_abbrev]
+  # - "{{LOOKUP_FOR_2DIGIT}}" for the 2-digit FOR code string
+  #   associated with the 4-digit FOR code, csv_fields[:for_code]
+  # - "{{LOOKUP_FOR_2DIGIT_NAME}}" for the name associated with
+  #   the 2-digit FOR code
   #
   # This method returns a copy of the updated string.
 
@@ -145,6 +169,10 @@ class Community
       case $1
       when 'CLUSTER_NAME'
         CLUSTER_ABBREVIATION2DESCRIPTION[ csv_fields[:cluster_abbrev] ]
+      when 'FOR_2DIGIT'
+        csv_fields[:for_code][0,2]
+      when 'FOR_2DIGIT_NAME'
+        FOR_CODE2DESCRIPTION[ csv_fields[:for_code][0,2] ]
       end
     }
     string
@@ -173,9 +201,9 @@ class Community
       # Duplicate sub-community names are not permitted under THIS
       # community object.
       comm_name = community_name(line, count)
-      comm = self.get_community_with_name?(comm_name)
+      comm = self.get_community_with_name(comm_name)
       unless comm
-        comm = Community.new(comm_name, SUB_COMMUNITY_XML_ELEMENTS, line)
+        comm = Community.new(comm_name, XML_ELEMENTS, line)
         self.append_community(comm)
       end
 
@@ -184,9 +212,9 @@ class Community
       # Duplicate collection names are not permitted under the ABOVE
       # sub-community object, comm.
       coll_name = collection_name(line, count)
-      coll = comm.get_collection_with_name?(coll_name)
+      coll = comm.get_collection_with_name(coll_name)
       unless coll
-        coll = Collection.new(coll_name, COLLECTION_XML_ELEMENTS, line)
+        coll = Collection.new(coll_name, Collection::XML_ELEMENTS, line)
         comm.append_collection(coll)
       end
     }
@@ -207,14 +235,35 @@ class Community
   # Returns community name for this CSV line. You can customise this method
   # to return the name of your choice.
   def community_name(csv_line, csv_line_count=nil)
-    comm_name = sprintf("Cluster %d - %s",
-     CLUSTER_ABBREVIATION2NUMBER[ csv_line[:cluster_abbrev] ],
-     CLUSTER_ABBREVIATION2DESCRIPTION[ csv_line[:cluster_abbrev] ])
-    unless comm_name
+    case SUB_COMMUNITY_TYPE
+
+    when :cluster
+      unless CLUSTER_ABBREVIATION2DESCRIPTION[ csv_line[:cluster_abbrev] ]
+        STDERR.puts "Method: #{__method__}"
+        STDERR.puts "ERROR:  Lookup for cluster code '#{csv_line[:cluster_abbrev]}' not found. See line:"
+        STDERR.printf "  %s%s\n", (csv_line_count ? "[#{csv_line_count}] " : ''), csv_line.to_s.chomp
+        exit(ERROR_CLUSTER_CODE_LOOKUP)
+      end
+      comm_name = sprintf("Cluster %d - %s",
+       CLUSTER_ABBREVIATION2NUMBER[ csv_line[:cluster_abbrev] ],
+       CLUSTER_ABBREVIATION2DESCRIPTION[ csv_line[:cluster_abbrev] ])
+
+    when :for2digit
+      for2digit = csv_line[:for_code][0,2]
+      unless FOR_CODE2DESCRIPTION[for2digit]
+        STDERR.puts "Method: #{__method__}"
+        STDERR.puts "ERROR:  Lookup for 2-digit FOR code '#{for2digit}' not found. See line:"
+        STDERR.printf "  %s%s\n", (csv_line_count ? "[#{csv_line_count}] " : ''), csv_line.to_s.chomp
+        exit(ERROR_FORCODE2_LOOKUP)
+      end
+      comm_name = sprintf "%s - %s",
+        for2digit, FOR_CODE2DESCRIPTION[for2digit]
+
+    else
       STDERR.puts "Method: #{__method__}"
-      STDERR.puts "ERROR:  Lookup for cluster code '#{csv_line[:cluster_abbrev]}' not found. See line:"
-      STDERR.printf "  %s%s\n", (csv_line_count ? "[#{csv_line_count}] " : ''), csv_line.to_s.chomp
-      exit(1)
+      STDERR.puts "ERROR: SUB_COMMUNITY_TYPE '#{SUB_COMMUNITY_TYPE}' not recognised."
+      exit(ERROR_SUB_COMMUNITY_TYPE)
+
     end
     comm_name
   end
@@ -243,7 +292,7 @@ class Community
   # Returns the first community object from the list of child-communities
   # having a name matching the specified argument. Returns nil if there
   # is no matching name.
-  def get_community_with_name?(name)
+  def get_community_with_name(name)
     @child_comms.each{|c| return c if c.name == name}
     nil
   end
@@ -252,7 +301,7 @@ class Community
   # Returns the first collection object from the list of child-collections
   # having a name matching the specified argument. Returns nil if there
   # is no matching name.
-  def get_collection_with_name?(name)
+  def get_collection_with_name(name)
     @child_colls.each{|c| return c if c.name == name}
     nil
   end

@@ -10,6 +10,7 @@ require 'community'
 ##############################################################################
 # A class to represent a DSpace collection
 class Collection
+  ERA_YEAR = Community::ERA_YEAR
 
   # This class assumes the XML 'name' element:
   # - is mandatory (hence it does not appear in this list) and
@@ -17,19 +18,31 @@ class Collection
   # The XML elements in this list are optional for a Collection.
   OPTIONAL_ELEMENTS = %w{ description intro copyright sidebar license provenance }
 
+  # Populate all collections with the optional XML elements
+  # given below. Note that 'name' is a mandatory XML element
+  # and must not appear in this hash.
+  XML_ELEMENTS = {
+    'description' => "Flinders' research in {{CSV_FIELD_for_title}}, as reported for ERA #{ERA_YEAR}.",
+    'intro'       => "<p>This collection contains Flinders' research in {{CSV_FIELD_for_title}}, as reported for ERA #{ERA_YEAR}.</p>
+<p>Where copyright and other restrictions allow, full text content is available.</p>",
+=begin
+    'copyright'   => 'Collection copyrt',
+    'sidebar'     => 'Collection s/bar',
+    'license'     => 'Collection lic',
+    'provenance'  => 'Collection prov'
+=end
+  }
+
+  # Exit codes for errors
+  ERROR_BASE = 200
+  ERROR_XML_ELEMENT_NAME		= ERROR_BASE + 1
+
   attr :name
 
   ############################################################################
   # Creates a Collection object.
   #
-  # Invocation exmaple 1:
-  #   c = Collection.new(
-  #     'My collection name',			# Mandatory XML element
-  #     'description' => 'My description',	# Optional XML element
-  #     'intro'       => 'My introduction'	# Optional XML element
-  #   )
-  #
-  # Invocation exmaple 2:
+  # Invocation exmaple:
   #   optional_elements = {
   #     'description' => 'My description',
   #     'intro'       => 'My introduction'
@@ -41,7 +54,7 @@ class Collection
     @opts.each_key{|k|
       unless OPTIONAL_ELEMENTS.include?(k)
         STDERR.puts "ERROR: XML element <#{k}> is not permitted as part of a #{self.class} in the object: #{inspect_more}"
-        exit(2)
+        exit(ERROR_XML_ELEMENT_NAME)
       end
     }
     @csv_fields = csv_fields

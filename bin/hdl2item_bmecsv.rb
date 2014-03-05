@@ -171,20 +171,6 @@ class CsvConverter
   ############################################################################
   # The main method for this class.
   def self.main
-    # DONE: Verify ARGV
-    # DONE: Remove indents from HEREIS docs
-    # DONE: Add exit codes
-    # DONE: Allow handle2resourceid.rb main() to also be run
-    # DONE: Use constants instead of CSV column names 'id', 'collection'
-    # DONE: Put PG::Connection into its own file
-    # DONE: handle2resourceid.rb: In strict mode, ensure resource_id not NULL
-    # DONE: handle2resourceid.rb: Assign proper exit code
-    # DONE: Test various CSV files ie. headers & data
-    # DONE: RDoc for new *.rb
-    # DONE: Add licence to header of each file.
-    # Doc dbc.rb & other stuff from headers of *.rb
-    # Merge into FlindersDSpace-csv2xmlstruct
-    # Fix FlindersDSpace-csv2xmlstruct exit codes (0-255).
     verify_command_line_args
     fname = ARGV[0]
     csv_out = CsvConverter.new(fname)

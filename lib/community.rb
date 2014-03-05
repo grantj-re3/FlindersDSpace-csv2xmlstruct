@@ -95,7 +95,7 @@ class Community
   LOOKUP_REGEX = /\{\{LOOKUP_([[:alnum:]_]+)\}\}/
 
   # Exit codes for errors
-  ERROR_BASE = 100
+  ERROR_BASE = 8
   ERROR_XML_ELEMENT_NAME		= ERROR_BASE + 1
   ERROR_CLUSTER_CODE_LOOKUP		= ERROR_BASE + 2
   ERROR_FORCODE2_LOOKUP			= ERROR_BASE + 3

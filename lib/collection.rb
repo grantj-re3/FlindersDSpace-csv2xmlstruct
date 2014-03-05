@@ -34,7 +34,7 @@ class Collection
   }
 
   # Exit codes for errors
-  ERROR_BASE = 200
+  ERROR_BASE = 16
   ERROR_XML_ELEMENT_NAME		= ERROR_BASE + 1
 
   attr :name

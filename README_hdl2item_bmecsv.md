@@ -20,13 +20,36 @@ Description
       dspace metadata-import ...
 ```
 
+Example usage
+-------------
+
+Example command line usage
+```
+bin/dspace_resource.rb  in_file.csv  >  out_file.csv
+```
+
+Example input CSV file (eg. in_file.csv)
+```
+item_handle,collection,dc.title
+123456789/5235,123456789/5057,"My title"
+```
+
+Example CSV output after processing with hdl2item_bmecsv.rb
+(eg. out_file.csv). This assumes that the DSpace database lookup
+of handle 123456789/5235 gives the item_id (ie. resource_id with
+resource_type of :item).
+```
+"id","collection","dc.title"
+"5177","123456789/5057","My title"
+```
+
 Prerequisites
 -------------
 For dspace_resource.rb and hence hdl2item_bmecsv.rb to connect to the
 DSpace database, you will need create a file named dbc.rb and put it
-in your ruby library path (eg. $HOME/my/db/connection/path/dbc.rb). The parameters
-of the Ruby hash can be a selection of those listed under
-*PG::Connection.new(connection_hash)* at
+in your ruby library path (eg. $HOME/my/db/connection/path/dbc.rb).
+The parameters of the Ruby hash can be a selection of those listed
+under *PG::Connection.new(connection_hash)* at
 http://deveiate.org/code/pg/PG/Connection.html#method-c-new
 
 An example of dbc.rb:

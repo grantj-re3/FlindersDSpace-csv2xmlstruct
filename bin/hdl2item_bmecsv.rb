@@ -99,11 +99,11 @@ class CsvConverter
             if h && h.resource_id
               line_out << h.resource_id			# The item_id corresponding to handle
             else
-              STDERR.puts <<-HANDLE_LOOKUP_MSG.gsub(/^\t*/, '')
+              STDERR.puts <<-MSG_HANDLE_LOOKUP.gsub(/^\t*/, '')
 		ERROR: Either the handle '#{line_in[COLUMN_ITEM_HANDLE]}' was not found or it was
 		found but the corresponding item_id is NULL (eg. perhaps the item was
 		deleted from the database).
-              HANDLE_LOOKUP_MSG
+              MSG_HANDLE_LOOKUP
               exit ERROR_HANDLE_LOOKUP
             end
           end
@@ -117,25 +117,25 @@ class CsvConverter
   # Verify the headers of the CSV input file
   def self.verify_csv_in_headers(headers)
     unless headers.include?(COLUMN_ITEM_HANDLE) && !headers.include?(COLUMN_ITEM_ID)
-          STDERR.puts <<-CSV_HEADER_ID_MSG.gsub(/^\t*/, '')
+          STDERR.puts <<-MSG_CSV_HEADER_ID.gsub(/^\t*/, '')
 		The CSV input file must NOT have the column heading '#{COLUMN_ITEM_ID}' and must have
 		the column heading '#{COLUMN_ITEM_HANDLE}'. The '#{COLUMN_ITEM_HANDLE}' represents the item's
 		handle eg. 123456789/111. In the CSV output, this column will be removed
 		and replaced with column heading '#{COLUMN_ITEM_ID}' representing the item's id eg. 222.
-          CSV_HEADER_ID_MSG
+          MSG_CSV_HEADER_ID
       exit ERROR_CSV_HEADER_ID
     end
     # Although DSpace BMET does not seem to consider this an error, this
     # app will consider it an error as the only reason to run this app at
     # this stage is to add the item to multiple collections.
     unless headers.include?('collection')
-          STDERR.puts <<-CSV_HEADER_COLLECTION_MSG.gsub(/^\t*/, '')
+          STDERR.puts <<-MSG_CSV_HEADER_COLLECTION.gsub(/^\t*/, '')
 		The CSV input file must have the column heading 'collection' representing
 		the collection or collections to which the item belongs. Either the
 		collection handle or collection ID can be used and multiple collections
 		can be specified by using the delimiter specified in the DSpace manual
 		(usually '||').
-          CSV_HEADER_COLLECTION_MSG
+          MSG_CSV_HEADER_COLLECTION
       exit ERROR_CSV_HEADER_COLLECTION
     end
   end
@@ -150,7 +150,7 @@ class CsvConverter
   # Verify the command line arguments.
   def self.verify_command_line_args
     unless ARGV.length == 1 && File.file?(ARGV[0]) && File.readable?(ARGV[0])
-      STDERR.puts <<-COMMAND_LINE_ARGS_MSG.gsub(/^\t*/, '')
+      STDERR.puts <<-MSG_COMMAND_LINE_ARGS.gsub(/^\t*/, '')
 		Usage:  #{File.basename $0} FILE.csv
 		  where FILE.csv is compatible with the Batch Metadata Editing Tool
 		  (BMET) except the DSpace items shall be specified via their handle
@@ -163,7 +163,7 @@ class CsvConverter
 		That is, this application converts the '#{COLUMN_ITEM_HANDLE}' column of
 		FILE.csv into the '#{COLUMN_ITEM_ID}' column on the standard output.
 
-      COMMAND_LINE_ARGS_MSG
+      MSG_COMMAND_LINE_ARGS
       exit ERROR_COMMAND_LINE_ARGS
     end
   end

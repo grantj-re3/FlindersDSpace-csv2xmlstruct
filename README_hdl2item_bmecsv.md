@@ -34,10 +34,10 @@ item_handle,collection,dc.title
 123456789/5235,123456789/5057,"My title"
 ```
 
-Example CSV output after processing with hdl2item_bmecsv.rb
-(eg. out_file.csv). This assumes that the DSpace database lookup
+Example CSV output (eg. out_file.csv) after processing with
+hdl2item_bmecsv.rb. This assumes that the DSpace database lookup
 of handle 123456789/5235 gives the item_id (ie. resource_id with
-resource_type of :item).
+resource_type of :item) of 5177.
 ```
 "id","collection","dc.title"
 "5177","123456789/5057","My title"
@@ -45,11 +45,12 @@ resource_type of :item).
 
 Prerequisites
 -------------
-For dspace_resource.rb and hence hdl2item_bmecsv.rb to connect to the
-DSpace database, you will need create a file named dbc.rb and put it
-in your ruby library path (eg. $HOME/my/db/connection/path/dbc.rb).
-The parameters of the Ruby hash can be a selection of those listed
-under *PG::Connection.new(connection_hash)* at
+For the dspace_resource.rb library and hence hdl2item_bmecsv.rb
+to connect to the DSpace database, you will need create a file
+named dbc.rb and put it in your ruby library path (eg.
+$HOME/my/db/connection/path/dbc.rb).  The parameters of the
+Ruby hash can be a selection of those listed under
+*PG::Connection.new(connection_hash)* at
 http://deveiate.org/code/pg/PG/Connection.html#method-c-new
 
 An example of dbc.rb:

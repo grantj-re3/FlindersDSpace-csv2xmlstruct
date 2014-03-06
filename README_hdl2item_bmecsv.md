@@ -24,11 +24,12 @@ Prerequisites
 -------------
 For dspace_resource.rb and hence hdl2item_bmecsv.rb to connect to the
 DSpace database, you will need create a file named dbc.rb and put it
-in your ruby library path (eg. $HOME/.ds/etc/dbc.rb). The parameters
-of the Ruby Hash can be a selection of those listed under
+in your ruby library path (eg. $HOME/my/db/connection/path/dbc.rb). The parameters
+of the Ruby hash can be a selection of those listed under
 *PG::Connection.new(connection_hash)* at
 http://deveiate.org/code/pg/PG/Connection.html#method-c-new
 
+An example of dbc.rb:
 ```
 module DbConnection
 
@@ -47,6 +48,6 @@ end
 
 Make the file readable only by your user. Eg.
 ```
-chmod 600 $HOME/.ds/etc/dbc.rb
+chmod 600 $HOME/my/db/connection/path/dbc.rb
 ```
 

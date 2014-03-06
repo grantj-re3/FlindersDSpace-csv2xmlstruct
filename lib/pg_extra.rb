@@ -18,11 +18,12 @@ class PG::Connection
   #   PG::Connection.connect2(connect_args){|conn| ... }
   def self.connect2(args)
     conn = self.new(args)
-    if block_given?
+    return conn unless block_given?
+
+    begin
       yield conn
+    ensure
       conn.close
-    else
-      return conn
     end
   end
 

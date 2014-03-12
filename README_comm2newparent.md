@@ -22,6 +22,8 @@ Description
 
 Example configuration and usage
 -------------------------------
+Perform the steps below on a **test** server until you are familiar with
+the operation.
 
 Example configuration
 - See Prerequisites section

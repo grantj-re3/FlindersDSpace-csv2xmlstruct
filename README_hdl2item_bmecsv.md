@@ -17,7 +17,8 @@ Description
   - run this script to convert item-handle into the (item) id
   - import the CSV file into DSpace using the command:
 ```
-      dspace metadata-import ...
+# Perform this command on a **test** server until you are familiar with the operation
+dspace metadata-import ...
 ```
 
 Example usage

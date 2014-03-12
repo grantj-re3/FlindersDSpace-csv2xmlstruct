@@ -11,7 +11,7 @@ operating system from source or via your normal package management
 system, consider using Ruby Version Manager at https://rvm.io.
 
 Since it is not a requirement that csv2xmlstruct.rb and
-csv2xmlstruct_wrap.sh be run on the same host where DSpace is running,
+csv2xmlstruct.rb be run on the same host where DSpace is running,
 I imagine someone may wish to run it on a Microsoft Windows platform.
 
 Although this software has not been designed to run under the Microsoft
@@ -51,7 +51,7 @@ Windows operating system, it may be feasible under 2 scenarios.
 - Download from github
 - Checkout latest version/tag if applicable
 - Update config for your site, in particular: ...
-- Run bin/csv2xmlstruct_wrap.sh to create the XML community/collection
+- Run bin/csv2xmlstruct.rb to create the XML community/collection
   file structure.
 - If required, copy the file structure to a DSpace test environment.
 - Run the "dspace structure-builder" script

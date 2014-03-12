@@ -21,7 +21,7 @@
 #   people can specify the community movements. Too risky?
 #
 ##############################################################################
-DSPACE_CMD=$HOME/bin/dspace		# Path to 'dspace' command line app
+DSPACE_CMD=$HOME/dsbin/dspace		# Path to 'dspace' command line app
 QUERY_CMD=`dirname "$0"`/query.rb	# query.rb is in same dir as this script
 
 # Populate "move_config" variable below with:

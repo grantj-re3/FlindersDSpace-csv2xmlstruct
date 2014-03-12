@@ -48,11 +48,11 @@ owns $HOME.
 ```
 mkdir ~/opt/csv2xmlstruct/result
 cd ~/opt/csv2xmlstruct/result
-../bin/csv2xmlstruct_wrap.sh > struct.xml
+../bin/csv2xmlstruct.rb > struct.xml
 ```
 
 - Copy struct.xml to the DSpace test server (if you ran
-  csv2xmlstruct_wrap.sh on another host)
+  csv2xmlstruct.rb on another host)
 
 - Create the DSpace structure under the top-level community
   defined by struct.xml.

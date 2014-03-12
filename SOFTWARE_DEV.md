@@ -5,7 +5,7 @@ Data flow
 ---------
 
 * ERA_2012_DisciplineMatrix4DSpace_v0.1.csv ->
-* [csv2xmlstruct_wrap.sh] -> struct.xml ->
+* [csv2xmlstruct.rb] -> struct.xml ->
 * [dspace structure-builder] -> DSpace structure (top level community) ->
 * [dspace community-filiator] -> DSpace structure (sub-community)
 
@@ -33,7 +33,7 @@ Algorithm
 Files
 -----
 
-bin/csv2xmlstruct_wrap.sh
+bin/csv2xmlstruct.rb
 - Top level shell wrapper script for bin/csv2xmlstruct.rb.
 - It is expected that the user will always run the program via this script.
 

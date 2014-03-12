@@ -17,9 +17,11 @@
 # Future:
 # - Permit srcParentHdl to be "/" representing a top-level community.
 #   Hence "$DSPACE_CMD community-filiator -r ..." would be unnecessary.
+# - Consider putting the config in a CSV file so that non-technical
+#   people can specify the community movements. Too risky?
 #
 ##############################################################################
-DSPACE_CMD=/opt/rqfdspace/bin/dspace	# Path to 'dspace' command line app
+DSPACE_CMD=$HOME/bin/dspace		# Path to 'dspace' command line app
 QUERY_CMD=`dirname "$0"`/query.rb	# query.rb is in same dir as this script
 
 # Populate "move_config" variable below with:
@@ -37,17 +39,9 @@ QUERY_CMD=`dirname "$0"`/query.rb	# query.rb is in same dir as this script
 # Field positions are:
 #	childHdl	srcParentHdl	dstParentHdl
 move_config="
-	123456789/5121	123456789/5055	123456789/5236
-	123456789/5138	123456789/5055	123456789/5236
+	# 123456789/5121	123456789/5055	123456789/5236
+	# 123456789/5138	123456789/5055	123456789/5236
 "
-#	123456789/5056	123456789/5055	123456789/5236
-#	123456789/5063	123456789/5055	123456789/5236
-#	123456789/5071	123456789/5055	123456789/5236
-#	123456789/5080	123456789/5055	123456789/5236
-#	123456789/5088	123456789/5055	123456789/5236
-#	123456789/5093	123456789/5055	123456789/5236
-#	123456789/5103	123456789/5055	123456789/5236
-#	123456789/5112	123456789/5055	123456789/5236
 
 ##############################################################################
 # do_command(cmd, is_show_cmd[, msg[, is_dry_run]]) -- Execute a shell command
@@ -106,6 +100,9 @@ show_community_name() {
 ##############################################################################
 echo "Moving child community from one parent community to another"
 echo "-----------------------------------------------------------"
+
+# First time through is a dry-run. After user confirmation, second time
+# through will process using the DSpace community-filiator commands.
 for is_dry_run in 1 0; do
 
   line_num=0

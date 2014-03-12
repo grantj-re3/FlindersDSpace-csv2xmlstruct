@@ -1,14 +1,14 @@
 #!/usr/bin/ruby
 # hdl2item_bmecsv.rb
 # 
+# Convert handle to item_id for the DSpace 3.x Batch Metadata Editing
+# Tool (BMET) CSV file.
+# 
 #--
 # Copyright (c) 2014, Flinders University, South Australia. All rights reserved.
 # Contributors: eResearch@Flinders, Library, Information Services, Flinders University.
 # See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
 #++ 
-#
-# Convert handle to item_id for the DSpace 3.x Batch Metadata Editing
-# Tool (BMET) CSV file.
 #
 # Typically, we like to reference DSpace items via their handle, but
 # the BMET will only accept the item_id in the 'id' field. This script

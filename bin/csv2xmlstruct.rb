@@ -9,8 +9,8 @@
 ##############################################################################
 
 # Add dirs to the library path
-$: << "../lib"
-$: << "../lib/libext"
+$: << File.expand_path("../lib", File.dirname(__FILE__))
+$: << File.expand_path("../lib/libext", File.dirname(__FILE__))
 
 require 'community'
 
@@ -26,7 +26,8 @@ MDEBUG = [
 class Csv2XmlStruct
   ERA_YEAR = Community::ERA_YEAR
 
-  CSV_PATH = "../etc/ERA_#{ERA_YEAR}_DisciplineMatrix4DSpace_v0.1.csv"
+  REL_CSV_PATH = "../etc/ERA_#{ERA_YEAR}_DisciplineMatrix4DSpace_v0.1small.csv"
+  CSV_PATH = File.expand_path(REL_CSV_PATH, File.dirname(__FILE__))
   CSV_DELIMITER = ','
 
   TOP_COMMUNITY_NAME = "ERA #{ERA_YEAR}"

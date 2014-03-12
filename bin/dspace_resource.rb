@@ -13,7 +13,7 @@
 ##############################################################################
 
 # Add dirs to the library path
-$: << "../lib"
+$: << File.expand_path("../lib", File.dirname(__FILE__))
 $: << "#{ENV['HOME']}/.ds/etc"
 
 # Use main() from this file unless already defined

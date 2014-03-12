@@ -3,15 +3,16 @@ comm2newparent.sh
 Description
 -----------
 
-- comm2newparent.sh: This script moves a set of DSpace child communities
-  from one parent community to another.
+- comm2newparent.sh: This script moves a batch of DSpace communities -
+  each from one parent community to another.
   It is effectively a DSpace batch community-filiator application.
-  It provides confidence that we know which child communities are being
+  It allows the user to know which child communities are being
   moved and where they are being moved from/to. Features are given below:
-  * Child communities are moved (ie. community-filiator --remove then --set).
-  * Records (consisting of child, current parent and new parent communities)
-    are processed in an "interactive" batch.
-  * The *name* of each of the three communities specified in the record
+  * Child communities are moved from one parent to another (by using
+    DSpace community-filiator --remove then --set).
+  * Records (consisting of child, current parent and new parent community
+    handles) are processed in an *interactive* batch.
+  * The community *name* of each of the specified handles in the record
     is displayed to the user.
   * The program expects user confirmation before performing a batch move
     of communities.

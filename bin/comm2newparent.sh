@@ -1,6 +1,6 @@
 #!/bin/sh
 # comm2newparent.sh
-# Move a set of DSpace child communities from one parent community to another.
+# Moves a batch of DSpace communities - each from one parent community to another.
 #
 # Copyright (c) 2014, Flinders University, South Australia. All rights reserved.
 # Contributors: eResearch@Flinders, Library, Information Services, Flinders University.

@@ -2,7 +2,16 @@
 ##############################################################################
 user=$USER	# Database user: Assume same name as the Unix user
 db=dspace	# Database name
+era_comm_name="ERA 2010"	# The ERA community name (under the 'Research Publications' community)
 
+# I've deliberately said:
+#   where parent_comm_id = (... where name='$era_comm_name')
+#
+# rather than:
+#   where parent_comm_id in (... where name='$era_comm_name')
+#
+# so that if another community appears with an identical name we will get
+# a syntax error and investigate if this query needs to be refined.
 sql="
 select
   c2i.item_id,
@@ -22,8 +31,8 @@ from
     LEFT OUTER JOIN handle h on (c2i.item_id = h.resource_id and h.resource_type_id = 2)
 where
   com2c.community_id in
-    (select child_comm_id from community2community where parent_comm_id in
-      (select community_id from community where name='Research Publications')
+    (select child_comm_id from community2community where parent_comm_id =
+      (select community_id from community where name='$era_comm_name')
     )
   and c2i.collection_id=com2c.collection_id
   and c2i.item_id not in (select item_id from item where withdrawn=true)
@@ -44,8 +53,8 @@ with
 "
 
 descr="List all items within each collection under each sub-community under the
-'Research Publications' community (ie. deliberately exclude any collections
-(NHMRC) directly beneath the 'Research Publications' community).
+'$era_comm_name' community (ie. deliberately exclude any collections directly
+beneath the '$era_comm_name' community).
 
 NOTES:
 
@@ -54,8 +63,7 @@ http://dspace.flinders.edu.au/jspui/handle/2328/12895) but an item can only
 have 1 collection-owner, this query only counts items 'owned by' the collection.
 This prevents listing the same item more than once. (I have previously checked
 that each item under each collection under each sub-community under the
-'Research Publications' community is owned by a collection under 'Research
-Publications'.)
+'$era_comm_name' community is owned by a collection under 'Research Publications'.)
 
 2) Items 26359,26360 have no RMID (so I presume they did not originate from RM).
 

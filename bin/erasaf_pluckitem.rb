@@ -1,6 +1,4 @@
 #!/usr/bin/ruby
-# erasaf_pluckitem.rb
-# 
 #--
 # Copyright (c) 2014, Flinders University, South Australia. All rights reserved.
 # Contributors: eResearch@Flinders, Library, Information Services, Flinders University.
@@ -13,7 +11,7 @@
 # position in a destination tree (for potential future processing
 # by the DSpace Batch Metadata Editing Tool, BMET).
 # 
-# ERA SAF directories shall be arranged in the following hierarchy.
+# An ERA SAF tree shall be arranged in the following hierarchy.
 # 
 # ERA_YEAR [community]
 # - FOR4DIGIT_A [collection]
@@ -30,9 +28,9 @@
 #   * ...
 #
 # where
-#   ERA_YEAR, FOR4DIGIT_*, RMID_* are all directories within the
-#   filesystem, and all files and directories under FOR4DIGIT_*
-#   conform to DSpace SAF.
+# - ERA_YEAR, FOR4DIGIT_*, RMID_* are all directories within the
+#   filesystem, and
+# - all files and directories under FOR4DIGIT_* conform to DSpace SAF
 #
 ##############################################################################
 
@@ -46,6 +44,13 @@ require 'faster_csv'
 class EraSafTree
   # Append this string to @era_root_dir_path to give the destination directory
   ERA_ROOT_DIR_PATH_DEST_SUFFIX = '_dest'
+
+  CSV_ITEMS_SUMMARY_FORMAT =
+    "\n  %s:\n" +
+    "    Items (read from file):     %5d%s\n" +
+    "    Duplicate items removed:    %5d\n" +
+    "    New items (in this file):   %5d\n" +
+    "    Total items (in all files): %5d\n"
 
   # FasterCSV options for reading CSV file
   FCSV_OPTS = {
@@ -70,7 +75,6 @@ class EraSafTree
     @target_items = []
     @plucked_items = []
     get_items_from_csv_files
-    pluck_from_tree
   end
 
   ############################################################################
@@ -104,25 +108,19 @@ class EraSafTree
   end
 
   ############################################################################
-  # Read items/RMID from each CSV file
+  # Read items/RMIDs from each CSV file
   ############################################################################
   def get_items_from_csv_files
-    csv_fmt_str =
-      "\n  %s:\n" +
-      "    Items (read from file):     %5d%s\n" +
-      "    Duplicate items removed:    %5d\n" +
-      "    New items (in this file):   %5d\n" +
-      "    Total items (in all files): %5d\n"
     puts "\nGathering items from CSV file(s)"
     @csv_filenames.sort.each{|fname|
       items = []
-      FasterCSV.foreach(fname, FCSV_OPTS) {|line| items << line[:rmid].chomp }
+      FasterCSV.foreach(fname, FCSV_OPTS) {|line| items << line[:rmid].chomp}
 
       items_length_before = items.length
       items.uniq!
       total_items_length_before = @target_items.length
       @target_items = @target_items.concat(items).uniq
-      printf csv_fmt_str, File.basename(fname),
+      printf CSV_ITEMS_SUMMARY_FORMAT, File.basename(fname),
         items_length_before, (items_length_before == 0 ? ' **WARNING**' : ''),
         items_length_before - items.length,
         @target_items.length - total_items_length_before, @target_items.length
@@ -162,12 +160,12 @@ class EraSafTree
     Dir.mkdir(@era_root_dir_path_dest) unless File.exists?(@era_root_dir_path_dest)
     Dir.mkdir(item_parent_dpath_dest) unless File.exists?(item_parent_dpath_dest)
     puts "Moving #{item_dpath_src}\n    to #{item_dpath_dest}"
-    File.rename(item_dpath_src, item_dpath_dest)
+    File.rename(item_dpath_src, item_dpath_dest)	# Move from src to dest tree
     @plucked_items << item_dpath_src
   end
 
   ############################################################################
-  # Report re plucked items/RMIDs
+  # Report regarding plucked items/RMIDs
   ############################################################################
   def report_plucked_items
     printf "\nNumber of plucked items:  %d\n", @plucked_items.length
@@ -212,7 +210,9 @@ class EraSafTree
     STDERR.puts "Plucking CSV-specified items from ERA-year before import into DSpace"
     STDERR.puts "--------------------------------------------------------------------"
     STDERR.puts "ERA root directory: #{root_dir}"
+
     era_tree = EraSafTree.new(root_dir, ARGV)
+    era_tree.pluck_from_tree
     era_tree.report_plucked_items
   end
 end

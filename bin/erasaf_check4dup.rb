@@ -1,17 +1,17 @@
 #!/usr/bin/ruby
-# erasaf_check4dup.rb
-# 
-# Check for duplicate items in ERA Simple Archive Format (SAF) tree.
-# 
 #--
 # Copyright (c) 2014, Flinders University, South Australia. All rights reserved.
 # Contributors: eResearch@Flinders, Library, Information Services, Flinders University.
 # See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
 #++ 
 #
+# Check for duplicate items and other potential issues in an ERA
+# Simple Archive Format (SAF) tree.
+# 
 # Iterate through ERA DSpace Simple Archive Format (SAF) directories
 # searching for duplicate item directories. Report any which are found.
-# ERA SAF directories shall be arranged in the following hierarchy.
+#
+# An ERA SAF tree shall be arranged in the following hierarchy.
 # 
 # ERA_YEAR [community]
 # - FOR4DIGIT_A [collection]
@@ -28,15 +28,17 @@
 #   * ...
 #
 # where
-#   ERA_YEAR, FOR4DIGIT_*, RMID_* are all directories within the
-#   filesystem, and all files and directories under FOR4DIGIT_*
-#   conform to DSpace SAF.
+# - ERA_YEAR, FOR4DIGIT_*, RMID_* are all directories within the
+#   filesystem, and
+# - all files and directories under FOR4DIGIT_* conform to DSpace SAF
 #
 ##############################################################################
 
 ##############################################################################
-# A class for representing an ERA Simple Archive Format (SAF) tree
-class EraSafTree
+# A class for representing an ERA Simple Archive Format (SAF) tree.
+# Class EraSafTree1 is a representation for phase 1 ie. verification
+# (prior to plucking).
+class EraSafTree1
 
   attr_reader :era_root_dir_path, :coll_names, :dup_items, :unexpected_files, :counts
 
@@ -116,7 +118,6 @@ class EraSafTree
   ############################################################################
   # Verify the command line arguments
   ############################################################################
-  # Verify the command line arguments
   def self.verify_command_line_args
     unless ARGV.length == 1 && File.directory?(ARGV[0])
       STDERR.puts <<-MSG_COMMAND_LINE_ARGS.gsub(/^\t*/, '')
@@ -139,12 +140,13 @@ class EraSafTree
   ############################################################################
   def self.main
     verify_command_line_args
-    era_tree = EraSafTree.new(ARGV[0].chomp)
+    root_dir = ARGV.shift
 
     STDERR.puts "Searching for duplicate SAF items before import into DSpace ERA-year"
     STDERR.puts "--------------------------------------------------------------------"
-    STDERR.puts "ERA root directory: #{era_tree.era_root_dir_path}"
+    STDERR.puts "ERA root directory: #{root_dir}"
 
+    era_tree = EraSafTree1.new(root_dir)
     era_tree.report_counters
     era_tree.report_unexpected_files
     era_tree.report_duplicate_items
@@ -155,6 +157,6 @@ end
 ##############################################################################
 # Main
 ##############################################################################
-EraSafTree.main
+EraSafTree1.main
 exit 0
 

@@ -51,6 +51,39 @@ class EraSafTree1
   end
 
   ############################################################################
+  # Report regarding items which appear in more than one collection
+  ############################################################################
+  def report_duplicate_items
+    printf "\n%sThe number of items which exist in more than one collection: %d\n",
+      (@dup_items.size > 1 ? '**WARNING** ' : ''), @dup_items.size
+    @dup_items.sort.each{|item_name|
+      puts "  Item #{item_name} exists in collections: #{@coll_names[item_name].join(', ')}"
+    }
+  end
+
+  ############################################################################
+  # Report regarding unexpected files within the ERA SAF tree
+  ############################################################################
+  def report_unexpected_files
+    printf "\n%sThe number of unexpected files (above item-detail directories): %d\n",
+      (@unexpected_files.size > 1 ? '**WARNING** ' : ''), @unexpected_files.size
+    @unexpected_files.each{|f| puts "  Unexpected file: #{f}"}
+  end
+
+  ############################################################################
+  # Report regarding collection and item counts
+  ############################################################################
+  def report_counters
+    puts
+    [:collection, :item].each{|type|
+      printf   "%sThe number of %s directories: %d\n",
+        (counts[type] == 0 ? '**WARNING** ' : ''), type, counts[type]
+    }
+  end
+
+  private
+
+  ############################################################################
   # Parse the ERA SAF tree and gather interesting info
   ############################################################################
   def parse_tree
@@ -84,36 +117,26 @@ class EraSafTree1
     @dup_items = coll_names.inject([]){|a,(item_name, coll_list)| coll_list.size > 1 ? a << item_name : a}
   end
 
-  ############################################################################
-  # Report regarding items which appear in more than one collection
-  ############################################################################
-  def report_duplicate_items
-    printf "\n%sThe number of items which exist in more than one collection: %d\n",
-      (@dup_items.size > 1 ? '**WARNING** ' : ''), @dup_items.size
-    @dup_items.sort.each{|item_name|
-      puts "  Item #{item_name} exists in collections: #{@coll_names[item_name].join(', ')}"
-    }
-  end
+  public
 
   ############################################################################
-  # Report regarding unexpected files within the ERA SAF tree
+  # The main method for this class
   ############################################################################
-  def report_unexpected_files
-    printf "\n%sThe number of unexpected files (above item-detail directories): %d\n",
-      (@unexpected_files.size > 1 ? '**WARNING** ' : ''), @unexpected_files.size
-    @unexpected_files.each{|f| puts "  Unexpected file: #{f}"}
+  def self.main
+    verify_command_line_args
+    root_dir = ARGV.shift
+
+    STDERR.puts "Searching for duplicate SAF items before import into DSpace ERA-year"
+    STDERR.puts "--------------------------------------------------------------------"
+    STDERR.puts "ERA root directory: #{root_dir}"
+
+    era_tree = EraSafTree1.new(root_dir)
+    era_tree.report_counters
+    era_tree.report_unexpected_files
+    era_tree.report_duplicate_items
   end
 
-  ############################################################################
-  # Report regarding collection and item counts
-  ############################################################################
-  def report_counters
-    puts
-    [:collection, :item].each{|type|
-      printf   "%sThe number of %s directories: %d\n",
-        (counts[type] == 0 ? '**WARNING** ' : ''), type, counts[type]
-    }
-  end
+  private
 
   ############################################################################
   # Verify the command line arguments
@@ -133,23 +156,6 @@ class EraSafTree1
       MSG_COMMAND_LINE_ARGS
       exit 1
     end
-  end
-
-  ############################################################################
-  # The main method for this class
-  ############################################################################
-  def self.main
-    verify_command_line_args
-    root_dir = ARGV.shift
-
-    STDERR.puts "Searching for duplicate SAF items before import into DSpace ERA-year"
-    STDERR.puts "--------------------------------------------------------------------"
-    STDERR.puts "ERA root directory: #{root_dir}"
-
-    era_tree = EraSafTree1.new(root_dir)
-    era_tree.report_counters
-    era_tree.report_unexpected_files
-    era_tree.report_duplicate_items
   end
 
 end

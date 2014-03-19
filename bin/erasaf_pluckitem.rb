@@ -78,6 +78,38 @@ class EraSafTree
   end
 
   ############################################################################
+  # Pluck/remove from the ERA SAF tree any items/RMIDs which were specified in
+  # CSV files.
+  ############################################################################
+  def pluck_from_tree
+    # Iterate thru all collections and items in the ERA tree and find any
+    # target items. Move such items out of @era_root_dir_path and into
+    # an identical hierarchical structure within @era_root_dir_path_dest.
+
+    Dir.glob("#{@era_root_dir_path}/*").sort.each{|coll_dpath|
+      next unless File.directory?(coll_dpath)
+
+      Dir.glob("#{coll_dpath}/*").sort.each{|item_dpath|
+        next unless File.directory?(item_dpath)
+        item = File.basename(item_dpath)
+        pluck_item(item_dpath) if @target_items.include?(item)
+      }
+    }
+  end
+
+  ############################################################################
+  # Report regarding plucked items/RMIDs
+  ############################################################################
+  def report_plucked_items
+    printf "\nNumber of plucked items:  %d\n", @plucked_items.length
+
+    puts "\nTarget items plucked out of directory #{File.basename(@era_root_dir_path)}:"
+    @plucked_items.each{|d| puts "  #{File.basename(d)}"}
+  end
+
+  private
+
+  ############################################################################
   # Verify source and destination directory paths
   ############################################################################
   def verify_src_dest_dir_paths
@@ -130,26 +162,6 @@ class EraSafTree
   end
 
   ############################################################################
-  # Pluck/remove from the ERA SAF tree any items/RMIDs which were specified in
-  # CSV files.
-  ############################################################################
-  def pluck_from_tree
-    # Iterate thru all collections and items in the ERA tree and find any
-    # target items. Move such items out of @era_root_dir_path and into
-    # an identical hierarchical structure within @era_root_dir_path_dest.
-
-    Dir.glob("#{@era_root_dir_path}/*").sort.each{|coll_dpath|
-      next unless File.directory?(coll_dpath)
-
-      Dir.glob("#{coll_dpath}/*").sort.each{|item_dpath|
-        next unless File.directory?(item_dpath)
-        item = File.basename(item_dpath)
-        pluck_item(item_dpath) if @target_items.include?(item)
-      }
-    }
-  end
-
-  ############################################################################
   # Pluck/remove this particular item/RMID from the ERA SAF tree.
   ############################################################################
   def pluck_item(item_dpath_src)
@@ -164,15 +176,25 @@ class EraSafTree
     @plucked_items << item_dpath_src
   end
 
-  ############################################################################
-  # Report regarding plucked items/RMIDs
-  ############################################################################
-  def report_plucked_items
-    printf "\nNumber of plucked items:  %d\n", @plucked_items.length
+  public
 
-    puts "\nTarget items plucked out of directory #{File.basename(@era_root_dir_path)}:"
-    @plucked_items.each{|d| puts "  #{File.basename(d)}"}
+  ############################################################################
+  # The main method for this class
+  ############################################################################
+  def self.main
+    verify_command_line_args
+    root_dir = ARGV.shift
+
+    STDERR.puts "Plucking CSV-specified items from ERA-year before import into DSpace"
+    STDERR.puts "--------------------------------------------------------------------"
+    STDERR.puts "ERA root directory: #{root_dir}"
+
+    era_tree = EraSafTree.new(root_dir, ARGV)
+    era_tree.pluck_from_tree
+    era_tree.report_plucked_items
   end
+
+  private
 
   ############################################################################
   # Verify the command line arguments
@@ -200,21 +222,6 @@ class EraSafTree
     end
   end
 
-  ############################################################################
-  # The main method for this class
-  ############################################################################
-  def self.main
-    verify_command_line_args
-    root_dir = ARGV.shift
-
-    STDERR.puts "Plucking CSV-specified items from ERA-year before import into DSpace"
-    STDERR.puts "--------------------------------------------------------------------"
-    STDERR.puts "ERA root directory: #{root_dir}"
-
-    era_tree = EraSafTree.new(root_dir, ARGV)
-    era_tree.pluck_from_tree
-    era_tree.report_plucked_items
-  end
 end
 
 ##############################################################################

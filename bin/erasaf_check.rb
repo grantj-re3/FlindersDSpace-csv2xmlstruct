@@ -74,10 +74,31 @@ class EraSafTree1
   # Report regarding collection and item counts
   ############################################################################
   def report_counters
-    puts
     [:collection, :item].each{|type|
-      printf   "%sThe number of %s directories: %d\n",
+      printf "\n%sThe number of %s directories: %d\n",
         (counts[type] == 0 ? '**WARNING** ' : ''), type, counts[type]
+    }
+  end
+
+  ############################################################################
+  # Report regarding empty collection and item directories.
+  #
+  # Note that although it is worthwhile issuing a warning regarding
+  # empty collection/item directories, there are many potential issues
+  # with non-empty directories. Eg1. Non-empty collection directories
+  # might contain no item directories but only contain useless files.
+  # Eg2. Non-empty item directories might be missing dublin_core.xml
+  # and contents files or the contents file might not match the
+  # included bitstreams.
+  ############################################################################
+  def report_empty_dirs
+    [:collection, :item].each{|type|
+      if @empty_dirs[type]
+        printf "\n**WARNING** The number of empty %s directories:  %d\n", type.to_s, @empty_dirs[type].length
+        @empty_dirs[type].each{|d|  puts "  #{d}"}
+      else
+        printf "\nThe number of empty %s directories:  %d\n", type.to_s, 0
+      end
     }
   end
 
@@ -94,27 +115,42 @@ class EraSafTree1
     @coll_names = {}
     @unexpected_files = []
     @counts = Hash.new(0)
+    @empty_dirs = {}
     Dir.glob("#{@era_root_dir_path}/*").sort.each{|coll_dpath|
       unless File.directory?(coll_dpath)
         @unexpected_files << coll_dpath
         next
       end
-      @counts[:collection] += 1
+      gather_statistics_by_type(:collection, coll_dpath)
 
       Dir.glob("#{coll_dpath}/*").sort.each{|item_dpath|
         unless File.directory?(item_dpath)
           @unexpected_files << item_dpath
           next
         end
-        @counts[:item] += 1
-        item_name = File.basename(item_dpath)
-
-        @coll_names[item_name] = [] unless @coll_names[item_name]
-        @coll_names[item_name] << File.basename(coll_dpath)
+        gather_statistics_by_type(:item, item_dpath)
       }
     }
     # Iterate thru all items and remember which exist in more than 1 collection
     @dup_items = coll_names.inject([]){|a,(item_name, coll_list)| coll_list.size > 1 ? a << item_name : a}
+  end
+
+  ############################################################################
+  # Gather statistics by type (ie. by :collection or :item) regarding
+  # SAF directories.
+  ############################################################################
+  def gather_statistics_by_type(type, dir_path)
+    @counts[type] += 1
+    if Dir.glob("#{dir_path}/*").empty?
+      @empty_dirs[type] = [] unless @empty_dirs[type]
+      @empty_dirs[type] << dir_path
+    end
+    if type == :item
+        item_name = File.basename(dir_path)
+        coll_name = File.basename(File.dirname(dir_path))
+        @coll_names[item_name] = [] unless @coll_names[item_name]
+        @coll_names[item_name] << coll_name
+    end
   end
 
   public
@@ -133,6 +169,7 @@ class EraSafTree1
     era_tree = EraSafTree1.new(root_dir)
     era_tree.report_counters
     era_tree.report_unexpected_files
+    era_tree.report_empty_dirs
     era_tree.report_duplicate_items
   end
 

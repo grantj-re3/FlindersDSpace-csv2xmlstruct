@@ -9,7 +9,11 @@
 # Simple Archive Format (SAF) tree.
 # 
 # Iterate through ERA DSpace Simple Archive Format (SAF) directories
-# searching for duplicate item directories. Report any which are found.
+# then display reports for the following aspects:
+# - duplicate item directories
+# - unexpected files
+# - empty collection or item directories
+# - collection and item counts
 #
 # An ERA SAF tree shall be arranged in the following hierarchy.
 # 

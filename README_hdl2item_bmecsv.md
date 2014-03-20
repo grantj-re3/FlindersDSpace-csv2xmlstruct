@@ -44,6 +44,12 @@ resource_type of :item) of 5177.
 "5177","123456789/5057","My title"
 ```
 
+Example of performing batch metadata editing using the contents of the
+newly created CSV file.
+```
+dspace metadata-import -f out_file.csv
+```
+
 Prerequisites
 -------------
 For the dspace_resource.rb library and hence hdl2item_bmecsv.rb

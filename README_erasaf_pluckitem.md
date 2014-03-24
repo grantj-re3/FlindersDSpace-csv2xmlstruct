@@ -72,9 +72,16 @@ ERA_YEAR [community]
   * ...
 
 where:
-- ERA_YEAR, FOR4DIGIT_*, RMID_* are all directories within the
+- ERA_YEAR, FOR4DIGIT_\*, RMID_\* are all directories within the
   filesystem, and
-- all files and directories under FOR4DIGIT_* conform to DSpace SAF
+- all files and directories under FOR4DIGIT_\* conform to DSpace SAF
+
+Note that the ERA SAF tree structure does __not__ have to correspond
+to the __DSpace ERA tree structure__. In our case, we have an
+intermediate subcommunity below the ERA_YEAR and above the
+FOR4DIGIT_\* collections. Our intermediate subcommunities represents
+2-digit FOR codes (but could just as easily represent an ERA
+clusters or something else entirely).
 
 Example usage
 -------------

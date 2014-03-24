@@ -36,6 +36,46 @@ removes those items from the ERA SAF tree. (A later step will assign
 some items to multiple collections since the SAF tools are unable
 to do that.)
 
+ERA SAF Tree Structure
+----------------------
+
+An ERA SAF tree comprises a high level directory representing the
+ERA reporting year. Within it are many SAF subdirectories, each
+representing one collection. These collection directories have
+names which are 4-digit FOR (Field of Research) codes. The FOR
+codes correspond to existing DSpace collections which _start_ with
+identical 4-digit FOR codes but may also have a suffix (eg. the
+description corresponding to the 4-digit FOR code).
+
+Each SAF collection directory conforms to the DSpace specification
+for Simple Archive Format import. In our case, item names shall
+correspond to the ID given to the research output by our Research
+Management Information System (ie. the RMID of the item). In our
+case we are only importing metadata so will not have any bitstreams
+imported, but this system could be used to import bitstreams also
+as specified by the SAF.
+
+The ERA SAF tree structure can be represented as follows.
+
+ERA_YEAR [community]
+- FOR4DIGIT_A [collection]
+  * RMID_A01 [item]
+    - SAF files for this item
+  * RMID_A02 [item]
+    - SAF files for this item
+  * ...
+- FOR4DIGIT_B [collection]
+  * RMID_B01 [item]
+    - SAF files for this item
+  * RMID_B02 [item]
+    - SAF files for this item
+  * ...
+
+where:
+- ERA_YEAR, FOR4DIGIT_*, RMID_* are all directories within the
+  filesystem, and
+- all files and directories under FOR4DIGIT_* conform to DSpace SAF
+
 Example usage
 -------------
 

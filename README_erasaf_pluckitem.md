@@ -33,10 +33,8 @@ The intention is that each CSV file lists the items which already exist
 in DSpace from a previous ERA reporting year. Instead of overwriting
 such items, we will retain the existing item - hence this application
 removes those items from the ERA SAF tree. (A later step will assign
-the one item to multiple collections since the SAF tools are unable
-to do that. Ie. Such items will need to be present in collections
-from previous ERA reporting years and the current ERA reporting year.)
-
+some items to multiple collections since the SAF tools are unable
+to do that.)
 
 Example usage
 -------------
@@ -54,7 +52,7 @@ erasaf_check.rb /path/to/my/era_tree
   reporting year).
 
 ```
-erasaf_pluckitem.rb /path/to/my/era_tree existingRmid2010.csv otherRmid.csv
+erasaf_pluckitem.rb /path/to/my/era_tree existingRmid2010.csv [ otherRmid.csv ]
 ```
 
 - Import each SAF collection into DSpace.
@@ -70,6 +68,6 @@ dspace import -a -s EraSafCollectionDir -c HandleOfEraSafCollectionDir -m mapfil
 where:
 - EraSafCollectionDir is the collection directory (typically a 4-digit
   FOR code) within the ERA SAF tree
-- HandleOfEraSafCollectionDir is the handle of the existing collection
-  (typically a 4-digit FOR code and corresponding description) within
-  DSpace
+- HandleOfEraSafCollectionDir is the handle of the existing DSpace
+  collection (typically a 4-digit FOR code and corresponding description)
+

@@ -58,6 +58,7 @@ class EraSafTree3
     verify_era_root_dir_path
     @era_root_community_handle = era_root_community_handle
     verify_era_root_community
+    verify_dspace_eperson
 
     @collection_names_by_handle = {}
     populate_collection_names
@@ -134,6 +135,17 @@ class EraSafTree3
         end
       }
     }
+  end
+
+  ############################################################################
+  # Verify the DSPACE_EPERSON constant.
+  ############################################################################
+  def verify_dspace_eperson
+    unless DSPACE_EPERSON && DSPACE_EPERSON != ''
+      STDERR.puts "Quitting: Constant DSPACE_EPERSON is empty. However the email"
+      STDERR.puts "address of the DSpace eperson performing the import is expected."
+      exit 5
+    end
   end
 
   ############################################################################

@@ -30,9 +30,9 @@ Example configuration
   * DSPACE_EXE_PATH
   * DSPACE_EPERSON_EMAIL
 
-- Make an import sh/bash script (eg. from the supplied test data). This
-  assumes you have a corresponding DSpace ERA-year tree structure with
-  handle 123456789/5055.
+- Make an import sh/bash script eg. from the supplied test tarball.
+  The commands below assume you have a corresponding DSpace ERA-year
+  tree structure with handle 123456789/5055.
 
 ```
 cd test
@@ -49,8 +49,10 @@ cd test_erasaf_mkimport
 sh my_era_import.sh
 ```
 
-- Verify the items defined with the ERA SAF tree now exist within
-  DSpace.
+- Verify the script output to confirm the results were expected.
+
+- If IS_IMPORT_TEST was set to false above, verify the items defined
+  within the ERA SAF tree now exist within DSpace.
 
 Prerequisites
 -------------

@@ -53,12 +53,22 @@ dspace metadata-import -f out_file.csv
 Prerequisites
 -------------
 For the dspace_resource.rb library and hence hdl2item_bmecsv.rb
-(and other apps in this repo) 
-to connect to the DSpace database, you will need create a file
-named dbc.rb and put it in your ruby library path (eg.
-$HOME/my/db/connection/path/dbc.rb).  The parameters of the
-Ruby hash can be a selection of those listed under
-*PG::Connection.new(connection_hash)* at
+(and other apps in this repo) to connect to the DSpace database,
+you will need create a file named dbc.rb and put it in your ruby
+library path. Eg. for file $HOME/my/db/connection/path/dbc.rb,
+you may need to add a statement similar to the following to
+dspace_resource.rb or whatever ruby script accesses the database.
+The statement will need to precede the corresponding require
+statement.
+```
+# Add dirs to the library path
+$: << "#{ENV['HOME']}/my/db/connection/path"
+...
+require 'dbc'
+```
+
+The parameters of the Ruby hash can be a selection of those
+listed under *PG::Connection.new(connection_hash)* at
 http://deveiate.org/code/pg/PG/Connection.html#method-c-new
 
 An example of dbc.rb:

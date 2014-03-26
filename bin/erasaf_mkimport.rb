@@ -31,7 +31,7 @@ class EraSafTree3
   IS_EXPAND_SOURCE_PATH = true	# true = expand --source path to be absolute; false = don't expand
   IS_EXPAND_MAP_PATH = false	# true = expand --map path to be absolute; false = don't expand
 
-  DSPACE_EXE_PATH = "#{ENV['HOME']}/ds/bin/dspace"
+  DSPACE_EXE_PATH = "#{ENV['HOME']}/dspace/bin/dspace"
   DSPACE_EPERSON_EMAIL = ENV['DS_USER_EMAIL']		# Eg. my_user@example.com
   DSPACE_IMPORT_MAP_PREFIX = 'map_'
 

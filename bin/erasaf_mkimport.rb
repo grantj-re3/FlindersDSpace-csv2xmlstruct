@@ -5,7 +5,7 @@
 # See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
 #++ 
 #
-# Make an import sh/bash script. Expected usage:
+# Make a SAF import sh/bash script. Expected usage:
 # - erasaf_mkimport.rb mitest01 123456789/5055 > my_era_import.sh
 # - Review contents of my_era_import.sh
 # - Run the import: sh my_era_import.sh
@@ -32,11 +32,11 @@ class EraSafTree3
   IS_EXPAND_MAP_PATH = false	# true = expand --map path to be absolute; false = don't expand
 
   DSPACE_EXE_PATH = "#{ENV['HOME']}/ds/bin/dspace"
-  DSPACE_EPERSON = ENV['DS_USER_EMAIL']		# Eg. my_user@example.com
+  DSPACE_EPERSON_EMAIL = ENV['DS_USER_EMAIL']		# Eg. my_user@example.com
   DSPACE_IMPORT_MAP_PREFIX = 'map_'
 
   TEST_OPT = IS_IMPORT_TEST ? '--test' : ''
-  DSPACE_IMPORT_PART = "#{DSPACE_EXE_PATH} import --add #{TEST_OPT} --eperson=#{DSPACE_EPERSON}"
+  DSPACE_IMPORT_PART = "#{DSPACE_EXE_PATH} import --add #{TEST_OPT} --eperson=#{DSPACE_EPERSON_EMAIL}"
 
   SCRIPT_HEADER = [
     '#!/bin/sh',
@@ -58,7 +58,7 @@ class EraSafTree3
     verify_era_root_dir_path
     @era_root_community_handle = era_root_community_handle
     verify_era_root_community
-    verify_dspace_eperson
+    verify_dspace_eperson_email
 
     @collection_names_by_handle = {}
     populate_collection_names
@@ -138,11 +138,11 @@ class EraSafTree3
   end
 
   ############################################################################
-  # Verify the DSPACE_EPERSON constant.
+  # Verify the DSPACE_EPERSON_EMAIL constant.
   ############################################################################
-  def verify_dspace_eperson
-    unless DSPACE_EPERSON && DSPACE_EPERSON != ''
-      STDERR.puts "Quitting: Constant DSPACE_EPERSON is empty. However the email"
+  def verify_dspace_eperson_email
+    unless DSPACE_EPERSON_EMAIL && DSPACE_EPERSON_EMAIL != ''
+      STDERR.puts "Quitting: Constant DSPACE_EPERSON_EMAIL is empty. However the email"
       STDERR.puts "address of the DSpace eperson performing the import is expected."
       exit 5
     end

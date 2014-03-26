@@ -9,14 +9,12 @@
 # - erasaf_mkimport.rb mitest01 123456789/5055 > my_era_import.sh
 # - Review contents of my_era_import.sh
 # - Run the import: sh my_era_import.sh
+#
 ##############################################################################
 
 # Add dirs to the library path
 $: << File.expand_path("../lib", File.dirname(__FILE__))
 $: << "#{ENV['HOME']}/.ds/etc"
-
-# Use main() from this file unless already defined
-MAIN_CLASS = :EraSafTree3 unless defined?(MAIN_CLASS)
 
 require 'date'
 require 'rubygems'
@@ -33,8 +31,8 @@ class EraSafTree3
   IS_EXPAND_SOURCE_PATH = true	# true = expand --source path to be absolute; false = don't expand
   IS_EXPAND_MAP_PATH = false	# true = expand --map path to be absolute; false = don't expand
 
-  DSPACE_EXE_PATH = "#{ENV['HOME']}/dsbin/dspace"
-  DSPACE_EPERSON = 'my_user@example.com'
+  DSPACE_EXE_PATH = "#{ENV['HOME']}/ds/bin/dspace"
+  DSPACE_EPERSON = ENV['DS_USER_EMAIL']		# Eg. my_user@example.com
   DSPACE_IMPORT_MAP_PREFIX = 'map_'
 
   TEST_OPT = IS_IMPORT_TEST ? '--test' : ''
@@ -87,12 +85,15 @@ class EraSafTree3
         exit 2
       end
 
+      # Eg. dspace import --add [--test] --eperson=user@example.com --collection=hdl --source=collDir --mapfile=mapFile
       mp = "#{DSPACE_IMPORT_MAP_PREFIX}#{coll_name_part}"
       mpath = IS_EXPAND_MAP_PATH ? File.expand_path(mp) : mp
       cpath = IS_EXPAND_SOURCE_PATH ? File.expand_path(coll_dpath) : coll_dpath
-      @sh_commands << "\necho \"Import #{db_coll_handle}; '#{db_coll_name}'\""
-      # Eg. dspace import --add --eperson=user@example.com --collection=hdl --source=collDir --mapfile=mapFile
-      @sh_commands << "#{DSPACE_IMPORT_PART} --collection=#{db_coll_handle} --source=#{cpath} --mapfile=#{mpath}"
+      cmd = "#{DSPACE_IMPORT_PART} --collection=#{db_coll_handle} --source=#{cpath} --mapfile=#{mpath}"
+      @sh_commands << "\necho"
+      @sh_commands << "echo \"Import #{db_coll_handle}; '#{db_coll_name}'\""
+      @sh_commands << "echo \"COMMAND: #{cmd}\""
+      @sh_commands << cmd
     }
   end
 

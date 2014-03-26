@@ -5,8 +5,10 @@
 # See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
 #++ 
 #
-# Make an import sh/bash script.
-#
+# Make an import sh/bash script. Expected usage:
+# - erasaf_mkimport.rb mitest01 123456789/5055 > my_era_import.sh
+# - Review contents of my_era_import.sh
+# - Run the import: sh my_era_import.sh
 ##############################################################################
 
 # Add dirs to the library path
@@ -88,7 +90,7 @@ class EraSafTree3
       mp = "#{DSPACE_IMPORT_MAP_PREFIX}#{coll_name_part}"
       mpath = IS_EXPAND_MAP_PATH ? File.expand_path(mp) : mp
       cpath = IS_EXPAND_SOURCE_PATH ? File.expand_path(coll_dpath) : coll_dpath
-      @sh_commands << "\n# Import #{db_coll_handle}; '#{db_coll_name}'"
+      @sh_commands << "\necho \"Import #{db_coll_handle}; '#{db_coll_name}'\""
       # Eg. dspace import --add --eperson=user@example.com --collection=hdl --source=collDir --mapfile=mapFile
       @sh_commands << "#{DSPACE_IMPORT_PART} --collection=#{db_coll_handle} --source=#{cpath} --mapfile=#{mpath}"
     }
@@ -138,10 +140,11 @@ class EraSafTree3
   ############################################################################
   def populate_collection_names
     # - Collection: resource_type_id=3.  Community: resource_type_id=4.
-    # - collection_id is currently used for debugging (but could be used
-    #   in the "dspace import ..." command.
-    # - Query assumes that collections are within a sub-community which
-    #   is within the ERA-year root-community.
+    # - collection_id is currently used for debugging only. It could be
+    #   used in the "dspace import ..." command, but handles are easier
+    #   to verify without resorting to a DB query (via the DSpace URL).
+    # - The query below assumes that collections are within a sub-community
+    #   which is within the ERA-year root-community.
     sql = <<-SQL_COLLECTION_NAMES.gsub(/^\t*/, '')
 	select
 	  (select handle from handle where resource_id=collection_id and resource_type_id=3) handle,

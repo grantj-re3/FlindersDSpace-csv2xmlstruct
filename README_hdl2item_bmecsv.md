@@ -54,7 +54,7 @@ Prerequisites
 -------------
 For the dspace_resource.rb library and hence hdl2item_bmecsv.rb
 (and other apps in this repo) to connect to the DSpace database,
-you will need create a file named dbc.rb and put it in your ruby
+you will need to create a file named dbc.rb and put it in your ruby
 library path. Eg. for file $HOME/my/db/connection/path/dbc.rb,
 you may need to add a statement similar to the following to
 dspace_resource.rb or whatever ruby script accesses the database.

@@ -26,7 +26,7 @@ Example usage
 
 Example command line usage
 ```
-bin/dspace_resource.rb  in_file.csv  >  out_file.csv
+bin/hdl2item_bmecsv.rb  in_file.csv  >  out_file.csv
 ```
 
 Example input CSV file (eg. in_file.csv)

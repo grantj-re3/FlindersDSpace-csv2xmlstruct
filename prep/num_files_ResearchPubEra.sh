@@ -18,7 +18,7 @@ select
   ) rmid,
   (select handle from handle where resource_id=i.item_id and resource_type_id=2) item_hdl,
   (select count(*) from bitstream where deleted='f' and bitstream_id in
-    (select bitstream_id from bundle2bitstream where bundle_id in
+    (select bitstream_id from bundle2bitstream where bundle_id =
       (select bundle_id from bundle where name='ORIGINAL' and bundle_id in 
         (select bundle_id from item2bundle where item_id=i.item_id)
       )

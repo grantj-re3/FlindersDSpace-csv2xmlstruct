@@ -91,7 +91,7 @@ class CsvConverter
         # Iterate thru each *output* column
         line_out = []
         @csv_out_headers.each_with_index{|col,i|
-          csv_out << @csv_out_headers if i == 0		# Header line
+          csv_out << @csv_out_headers if line_in_count == 1 && i == 0	# Header line
 
           unless i == @index
             line_out << line_in[col]

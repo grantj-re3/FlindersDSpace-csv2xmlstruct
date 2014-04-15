@@ -7,11 +7,12 @@
 # See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
 #++ 
 #
-# Convert RM-CSV file for a specified ERA reporting year with columns:
-#   RMID,FOR4D_Owner,FOR4D_Others
+# Convert RM-CSV file for a specified ERA reporting year with column names
+# which are typically:
+# - RMID,FOR4D_Owner,FOR4D_Others
+# to a Handle-CSV file with column names which are typically:
+# - ItemHdl,Col_Owner_Hdl,Col_Others_Hdl
 #
-# to a Handle-CSV file with columns:
-#   ItemHdl,Col_Owner_Hdl,Col_Others_Hdl
 #
 ##############################################################################
 
@@ -114,7 +115,8 @@ class RmCsv2HandleCsv
   # will open and yield a new connection. Otherwise we assume that
   # @db_conn is a valid connection and we will yield it.
   def db_connect
-    yield @db_conn ? @db_conn : PG::Connection.connect2(DB_CONNECT_INFO)
+    conn = @db_conn ? @db_conn : PG::Connection.connect2(DB_CONNECT_INFO)
+    yield conn
   end
 
   ############################################################################

@@ -13,7 +13,6 @@
 # to a Handle-CSV file with column names which are typically:
 # - ItemHdl,Col_Owner_Hdl,Col_Others_Hdl
 #
-#
 ##############################################################################
 
 # Add dirs to the library path
@@ -23,20 +22,14 @@ $: << File.expand_path("../lib/libext", File.dirname(__FILE__))
 $: << "#{ENV['HOME']}/.ds/etc"
 
 require 'faster_csv'
-require 'rubygems'
-require 'pg'
-require 'pg_extra'
-require 'dbc'
+require 'dspace_utils'
 
 ##############################################################################
 class RmCsv2HandleCsv
-  include DbConnection
+  include DSpaceUtils
 
   # In the output-CSV, include input-CSV columns which are being translated
   WILL_INCLUDE_INPUT_COLUMNS = true
-
-  # In a single CSV column, use this delimiter to separate multiple values
-  VALUE_DELIMITER = '||'
 
   # Input-CSV column names
   RmidItem = 'RMID'
@@ -75,14 +68,6 @@ class RmCsv2HandleCsv
     :force_quotes => true,
   }
 
-  # This hash shows the relationship between the DSpace handle table's
-  # resource_type_id and its type.
-  RESOURCE_TYPE_IDS = {
-    :item	=> 2,
-    :collection	=> 3,
-    :community	=> 4,
-  }
-
   attr_reader :in_file, :era_year_handle, :csv_out_headers, :csv_out_data
 
   ############################################################################
@@ -109,15 +94,6 @@ class RmCsv2HandleCsv
   end
 
   private
-
-  ############################################################################
-  # Yield a connection to the DSpace database. If @db_conn is nil we
-  # will open and yield a new connection. Otherwise we assume that
-  # @db_conn is a valid connection and we will yield it.
-  def db_connect
-    conn = @db_conn ? @db_conn : PG::Connection.connect2(DB_CONNECT_INFO)
-    yield conn
-  end
 
   ############################################################################
   # Verify the RM-CSV input file

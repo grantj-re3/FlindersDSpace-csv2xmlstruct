@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-#
+#--
 # Copyright (c) 2014, Flinders University, South Australia. All rights reserved.
 # Contributors: eResearch@Flinders, Library, Information Services, Flinders University.
 # See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
@@ -27,6 +27,7 @@
 #     collections in the target and previous ERA reporting years.
 # - Run the DSpace BMET against the newly created BMET CSV file
 #
+#++
 ##############################################################################
 
 # Add dirs to the library path

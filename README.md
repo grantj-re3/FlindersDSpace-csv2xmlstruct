@@ -72,6 +72,9 @@ This suite of applications allows one to:
 
 ## Workflow
 
+More details regarding many of the applications listed below are given
+in README*.md files within this directory.
+
 ### Obtain information from your Research MIS
 Obtain the following ERA target reporting-year (eg. ERA 2012) information
 from your Research MIS
@@ -87,8 +90,8 @@ target reporting-year (eg. ERA 2012). The structure is written to an XML
 file.
 
 Use the DSpace structure-builder tool to convert the XML file into a
-community/collection hierarchy as described in the Concepts section
-above.
+community/collection hierarchy as described in the
+[Concepts](README.md#concepts) section above.
 
 ### prep/itemHdl_colHdl_ResearchPubEra.sh
 Extract all RMIDs in all (previous) DSpace ERA reporting year trees in
@@ -102,7 +105,7 @@ If items are present within the ERA target reporting-year SAF directory tree
 but already exist within DSpace from previous ERA reporting-years (or
 perhaps exist independently of ERA) then this application "plucks" such
 items from the SAF tree so that they will not be imported into DSpace
-(as discussed in the Concepts section above).
+(as discussed in the [Concepts](README.md#concepts) section above).
 
 ### bin/erasaf_mkimport.rb
 DSpace provides a tool to import a single SAF collection into DSpace.
@@ -182,8 +185,9 @@ Item_Hdl,C_Owner_Hdl,C_Others_Hdl
 Consult the DSpace manual for the Batch Metadata Editing Tool CSV format.
 
 ### Note
-CSV files discussed in the Workflow section must contain the columns specified above.
-However, the software in this suite (but not DSpace tools) does permit
+CSV files discussed in the [Workflow](README.md#workflow)
+section must contain the columns specified above. However,
+the software in this suite (but not DSpace tools) does permit
 CSV files to also contain other columns which will be ignored by the
 corresponding software. This means that in one of the cases above, the
 same CSV data extracted by prep/itemHdl_colHdl_ResearchPubEra.sh can be
@@ -206,5 +210,10 @@ This tool is not required for the above workflow, however we used it to
 move some ERA 2010 (child) communities under a new parent community to
 conform to a new structure required by this suite of applications.
 
-### prep/...
+### prep/*.sh
+A variety of scripts for extracting useful and interesting (perhaps)
+information from the DSpace database.
+
+Each script contains a brief description (assigned to the "descr"
+environment variable).
 

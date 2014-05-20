@@ -11,7 +11,7 @@
 # which are typically:
 # - RMID,FOR4D_Owner,FOR4D_Others
 # to a Handle-CSV file with column names which are typically:
-# - ItemHdl,Col_Owner_Hdl,Col_Others_Hdl
+# - Item_Hdl,Col_Owner_Hdl,Col_Others_Hdl
 #
 ##############################################################################
 
@@ -22,11 +22,11 @@ $: << File.expand_path("../lib/libext", File.dirname(__FILE__))
 $: << "#{ENV['HOME']}/.ds/etc"
 
 require 'faster_csv'
-require 'dspace_utils'
+require 'dspace_pg_utils'
 
 ##############################################################################
 class RmCsv2HandleCsv
-  include DSpaceUtils
+  include DSpacePgUtils
 
   # In the output-CSV, include input-CSV columns which are being translated
   WILL_INCLUDE_INPUT_COLUMNS = true

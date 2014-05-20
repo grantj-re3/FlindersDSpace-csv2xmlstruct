@@ -12,6 +12,10 @@ require 'dspace_utils'
 
 ##############################################################################
 # Handy DSpace PostgreSQL utilities and constants
+#
+# DSpace constants, methods, etc which might be used without making a
+# database connection *must* be put into dspace_utils.rb. Database
+# related DSpace functionality should be put into this module.
 ##############################################################################
 module DSpacePgUtils
   include DbConnection

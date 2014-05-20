@@ -6,6 +6,10 @@
 
 ##############################################################################
 # Handy DSpace utilities and constants
+#
+# Constants, methods, etc within this module *must* be accessible without
+# making a database connection. Database related DSpace functionality
+# should be put into dspace_pg_utils.rb.
 ##############################################################################
 module DSpaceUtils
   # In a single CSV column, use this delimiter to separate multiple values

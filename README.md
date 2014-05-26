@@ -10,26 +10,26 @@ This suite of applications allows one to:
 - create a DSpace community/collection structure for the above metadata
 - import the Research MIS metadata into the above DSpace structure (without
   duplicating items imported during previous ERA reporting-years)
-- maintain mapping of items to existing collections and items to
-  new collections
+- map a new item to more than one new collection and map an existing item
+  to more than one new and/or existing collection
 
 ## Concepts
 - An ERA reporting-year is a year in which a "full round of ERA occurred"
-  as described on the above web page. So far, these have been in ERA 2010
+  as described on the above web page. So far, these have been ERA 2010
   and ERA 2012. Preparations are currently under way for ERA 2015.
 
-- The target ERA reporting-year is the year for which ERA metadata are
-  being imported into DSpace. Eg. ERA 2012.
+- The target ERA reporting-year is the reporting-year for which ERA
+  metadata are being imported into DSpace. Eg. ERA 2012.
 
 - Previous ERA reporting-years are years which have already been imported
   into DSpace prior to the target ERA reporting-year. Eg. If the target
   ERA reporting-year is ERA 2012, then the only previous ERA reporting-year
   would be ERA 2010.
 
-- A DSpace item corresponds to metadata for a research output. It has an
-  associated identifier (ie. Research-MIS ID or RMID).
+- A DSpace ERA item corresponds to a metadata record for a research output.
+  It has an associated identifier, RMID (ie. Research-MIS ID).
 
-- A DSpace collection corresponds to a 4-digit FOR (Field of Research) code.
+- A DSpace ERA collection corresponds to a 4-digit FOR (Field of Research) code.
 
 - The ERA DSpace structure shall comprise the following hierarchical levels.
   * Optional higher level communities. In our case, one top level community
@@ -91,7 +91,7 @@ file.
 
 Use the DSpace structure-builder tool to convert the XML file into a
 community/collection hierarchy as described in the
-[Concepts](README.md#concepts) section above.
+[Concepts](#concepts) section above.
 
 ### prep/itemHdl_colHdl_ResearchPubEra.sh
 Extract all RMIDs in all (previous) DSpace ERA reporting year trees in
@@ -105,7 +105,7 @@ If items are present within the ERA target reporting-year SAF directory tree
 but already exist within DSpace from previous ERA reporting-years (or
 perhaps exist independently of ERA) then this application "plucks" such
 items from the SAF tree so that they will not be imported into DSpace
-(as discussed in the [Concepts](README.md#concepts) section above).
+(as discussed in the [Concepts](#concepts) section above).
 
 ### bin/erasaf_mkimport.rb
 DSpace provides a tool to import a single SAF collection into DSpace.
@@ -185,7 +185,7 @@ Item_Hdl,C_Owner_Hdl,C_Others_Hdl
 Consult the DSpace manual for the Batch Metadata Editing Tool CSV format.
 
 ### Note
-CSV files discussed in the [Workflow](README.md#workflow)
+CSV files discussed in the [Workflow](#workflow)
 section must contain the columns specified above. However,
 the software in this suite (but not DSpace tools) does permit
 CSV files to also contain other columns which will be ignored by the

@@ -91,9 +91,10 @@ file.
 
 Use the DSpace structure-builder tool to convert the XML file into a
 community/collection hierarchy as described in the
-[Concepts](#concepts) section above.
+[Concepts](#concepts) section above. More information is provided
+[here](README_csv2xmlstruct.md).
 
-### prep/itemHdl_colHdl_ResearchPubEra.sh
+### prep/itemHdl_colHdl_AllPub.sh
 Extract all RMIDs in all (previous) DSpace ERA reporting year trees in
 RMID-Only-format, CSV2.
 

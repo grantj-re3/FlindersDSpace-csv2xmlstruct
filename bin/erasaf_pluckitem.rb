@@ -29,8 +29,13 @@
 #
 # where
 # - ERA_YEAR, FOR4DIGIT_*, RMID_* are all directories within the
-#   filesystem, and
+#   filesystem
 # - all files and directories under FOR4DIGIT_* conform to DSpace SAF
+# - ERA_YEAR matches the name of the target ERA year
+# - FOR4DIGIT_* matches the name starting with a 4-digit FOR code
+#   then whitespace then anything (but which is expected to be the
+#   associated FOR name)
+# - RMID_* matches the RMID of the associated item
 #
 ##############################################################################
 
@@ -43,7 +48,7 @@ require 'faster_csv'
 # A class for representing an ERA Simple Archive Format (SAF) tree
 class EraSafTree
   # Append this string to @era_root_dir_path to give the destination directory
-  ERA_ROOT_DIR_PATH_DEST_SUFFIX = '_dest'
+  ERA_ROOT_DIR_PATH_DEST_SUFFIX = '_moved_out'
 
   CSV_ITEMS_SUMMARY_FORMAT =
     "\n  %s:\n" +
@@ -208,14 +213,18 @@ class EraSafTree
 		    containing multiple DSpace collections which conform to
 		    the Simple Archive Format (SAF).
 
-		    CSVFILE1, CSVFILE2, etc are CSV files containing column
-		    header line "RMID,FOR4D_Owner,FOR4D_Others" and the
-		    RMID column is populated with RMIDs to be removed
+		    CSVFILE1, CSVFILE2, etc are CSV files containing the
+		    column name RMID (and perhaps other columns) and the
+		    RMID column is populated with RMIDs to be *removed*
 		    (plucked) from the ERA_ROOT_DIR_PATH tree (and moved into
 		    the ERA_ROOT_DIR_PATH#{ERA_ROOT_DIR_PATH_DEST_SUFFIX} tree).
+		    This is expected to be a CSV file containing a list of all
+		    existing RMIDs within DSpace such as that extracted with
+		    the itemHdl_colHdl_AllPub.sh script. It is expected that
+		    there will be at most one RMID per item.
 		Note:
-		  Item names within each collection are expected to be
-		  approx 10-digit RMIDs.
+		  Item names within each SAF collection are expected to be
+		  RMIDs.
 
       MSG_COMMAND_LINE_ARGS
       exit 1

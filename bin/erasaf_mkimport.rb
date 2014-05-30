@@ -220,6 +220,12 @@ class EraSafTree3
 		    in turn contain collections whose names start with a
 		    4-digit FOR code.
 
+		    This script expects the DS_USER_EMAIL shell environment
+		    variable to be set to the email address of the DSpace
+		    user performing the import. Hence a typical usage might be:
+
+		      DS_USER_EMAIL=user@example.com #{File.basename $0} era2012_saftree 123456789/1 > import.sh
+
       MSG_COMMAND_LINE_ARGS
       exit 1
     end

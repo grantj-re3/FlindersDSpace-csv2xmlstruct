@@ -127,9 +127,26 @@ class RmCsv2HandleCsv
   ############################################################################
   # Return the handle for the specified RMID. Quit unless the RMID maps
   # to exactly one handle and the handle is not null.
-  def get_handle_for_rmid(rmid)
-    handle = nil
-    sql = <<-SQL_HANDLE4RMID.gsub(/^\t*/, '')
+  # - If from == :anywhere, RMID can be selected from any item in the
+  #   database
+  # - If from == :era_year, RMID can only be selected from within the
+  #   specified ERA year
+  def get_handle_for_rmid(rmid, from=:anywhere)
+    if from == :anywhere
+      msg_append = "anywhere within database"
+      sql = <<-SQL_HANDLE4RMID1.gsub(/^\t*/, '')
+	select
+	  item_id,
+	  (select handle from handle where resource_id=mv.item_id and resource_type_id=#{RESOURCE_TYPE_IDS[:item]}) item_hdl,
+	  text_value rmid
+	from metadatavalue mv
+	where
+	  text_value='#{rmid}' and metadata_field_id=
+	    (select metadata_field_id from metadatafieldregistry where element='identifier' and qualifier='rmid');
+      SQL_HANDLE4RMID1
+    elsif from == :era_year
+      msg_append = "for ERA reporting-year with handle #{@era_year_handle}"
+      sql = <<-SQL_HANDLE4RMID2.gsub(/^\t*/, '')
 	select
 	  i.item_id,
 	  (select handle from handle where resource_id=i.item_id and resource_type_id=#{RESOURCE_TYPE_IDS[:item]}) item_hdl,
@@ -159,16 +176,18 @@ class RmCsv2HandleCsv
 	) mv
 	where
 	  i.item_id = mv.item_id;
-    SQL_HANDLE4RMID
+      SQL_HANDLE4RMID2
+    end
+    handle = nil
     db_connect{|conn|
       conn.exec(sql){|result|
         if result.ntuples == 1
           result.each{|row| handle = row['item_hdl']}
         elsif result.ntuples == 0
-          STDERR.puts "Quitting: No item record found when looking up RMID #{rmid} for ERA reporting-year with handle #{@era_year_handle}"
+          STDERR.puts "Quitting: No item record found when looking up RMID #{rmid} #{msg_append}"
           exit 4
         else
-          STDERR.puts "Quitting: More than one distinct item record found when looking up RMID #{rmid} for ERA reporting-year with handle #{@era_year_handle}"
+          STDERR.puts "Quitting: More than one distinct item record found when looking up RMID #{rmid} #{msg_append}"
           exit 4
         end
       }
@@ -176,7 +195,7 @@ class RmCsv2HandleCsv
     if handle
       handle
     else
-      STDERR.puts "Quitting: No handle found for the item with RMID #{rmid} for ERA reporting-year with handle #{@era_year_handle}"
+      STDERR.puts "Quitting: No handle found for the item with RMID #{rmid} #{msg_append}"
       exit 4
     end
   end

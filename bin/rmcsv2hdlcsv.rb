@@ -255,9 +255,13 @@ class RmCsv2HandleCsv
           when HdlColOwner
             line_out << get_handle_for_collection_prefix(line_in[PrefixColOwner])
           when HdlColList
-            prefixes = line_in[PrefixColList].split(VALUE_DELIMITER)
-            handles = prefixes.inject([]){|a,prefix| a << get_handle_for_collection_prefix(prefix)}
-            line_out << handles.join(VALUE_DELIMITER)
+            if line_in[PrefixColList]
+              prefixes = line_in[PrefixColList].split(VALUE_DELIMITER)
+              handles = prefixes.inject([]){|a,prefix| a << get_handle_for_collection_prefix(prefix)}
+              line_out << handles.join(VALUE_DELIMITER)
+            else
+              line_out << ""
+            end
           end
         }
         csv_out << line_out

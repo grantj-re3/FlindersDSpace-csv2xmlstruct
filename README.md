@@ -95,11 +95,14 @@ community/collection hierarchy as described in the
 [here](README_csv2xmlstruct.md).
 
 ### prep/itemHdl_colHdl_AllPub.sh
-Extract all RMIDs in all (previous) DSpace ERA reporting year trees in
-RMID-Only-format, CSV2.
+Extract all RMIDs in all of DSpace in RMID-Only-format, CSV2.
+Alternatively, use prep/itemHdl_colHdl_ResearchPubEra.sh to extract
+all RMIDs in all DSpace ERA reporting year trees in RMID-Only-format,
+CSV2. You should extract this data at this point in the workflow
+before new items are added for the target year.
 
 ### bin/erasaf_check.rb
-Perform some checking.
+Perform some checking on the ERA SAF-tree.
 
 ### bin/erasaf_pluckitem.rb
 If items are present within the ERA target reporting-year SAF directory tree
@@ -135,9 +138,9 @@ target or previous reporting years) this application will create a CSV
 file which will map the item to all collections to which it belongs.
 
 As input to this application, you should reuse the CSV file created
-above (by running prep/itemHdl_colHdl_ResearchPubEra.sh). However this
-time the application will use the columns specified for Handle-format,
-CSV3.
+above (by running prep/itemHdl_colHdl_AllPub.sh or
+prep/itemHdl_colHdl_ResearchPubEra.sh). However this time the
+application will use the columns specified for Handle-format, CSV3.
 
 The resulting file (in Handle-format, CSV3) is almost identical to a
 Batch Metadata Editing Tool (BMET) CSV file except that items are
@@ -191,9 +194,9 @@ section must contain the columns specified above. However,
 the software in this suite (but not DSpace tools) does permit
 CSV files to also contain other columns which will be ignored by the
 corresponding software. This means that in one of the cases above, the
-same CSV data extracted by prep/itemHdl_colHdl_ResearchPubEra.sh can be
-used in two places. That is, previous ERA reporting-year items data
-can be deemed to satisfy both:
+same CSV data extracted by prep/itemHdl_colHdl_AllPub.sh (or
+prep/itemHdl_colHdl_ResearchPubEra.sh) can be used in two places. That
+is, previous items which have an RMID can be deemed to satisfy both:
 - RMID-Only-format (CSV2), and
 - Handle-format (CSV3)
 

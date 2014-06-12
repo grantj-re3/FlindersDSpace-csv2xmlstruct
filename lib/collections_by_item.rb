@@ -15,8 +15,8 @@ class CollectionsByItem
   include Enumerable
   include DSpaceUtils
 
-  MANDATORY_CSV_IN_FIELDS = [:item_hdl, :c_owner_hdl]
-  CSV_IN_FIELDS = MANDATORY_CSV_IN_FIELDS + [:c_others_hdl]
+  MANDATORY_CSV_IN_FIELDS = [:item_hdl, :col_owner_hdl]
+  CSV_IN_FIELDS = MANDATORY_CSV_IN_FIELDS + [:col_others_hdl]
 
   CSV_OUT_FIELDS = [:item_hdl, :col_hdls]
   EXTRA_CSV_OUT_FIELDS = [:rmid, :item_name, :col_names]
@@ -85,10 +85,10 @@ class CollectionsByItem
         STDERR.printf "ERROR: Item-handle '%s' has been repeated in file '%s'\n", line[:item_hdl], @era_year_csv
         exit 4
       end
-      @collections[ line[:item_hdl] ] = [ line[:c_owner_hdl] ]	# Mandatory owning collection
-      if line[:c_others_hdl]					# Optional other collections
-        line[:c_others_hdl].split(VALUE_DELIMITER).each{|c_hdl|
-          @collections[ line[:item_hdl] ] << c_hdl
+      @collections[ line[:item_hdl] ] = [ line[:col_owner_hdl] ]	# Mandatory owning collection
+      if line[:col_others_hdl]					# Optional other collections
+        line[:col_others_hdl].split(VALUE_DELIMITER).each{|col_hdl|
+          @collections[ line[:item_hdl] ] << col_hdl
         }
       end
     }
@@ -110,7 +110,7 @@ class CollectionsByItem
     @collections.sort.each{|itemh,colhdls|
       unless colhdls.length == colhdls.uniq.length
         STDERR.printf "ERROR: Item %s is mapped to the same collection more than once\n", itemh
-        STDERR.printf "Check all ERA reporting-year CSV files"
+        STDERR.printf "Check all ERA reporting-year CSV files\n"
         exit 5
       end
     }

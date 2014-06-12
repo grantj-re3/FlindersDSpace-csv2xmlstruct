@@ -45,7 +45,7 @@ class CsvConverter
     :headers => true,
     :force_quotes => true,
   }
-  COLUMN_ITEM_HANDLE = 'item_handle'	# Replace this column (representing item handle)
+  COLUMN_ITEM_HANDLE = 'item_hdl'	# Replace this column (representing item handle)
   COLUMN_ITEM_ID = 'id'			# with this column (representing item ID)
 
   # Exit codes for errors
@@ -129,13 +129,13 @@ class CsvConverter
     # Although DSpace BMET does not seem to consider this an error, this
     # app will consider it an error as the only reason to run this app at
     # this stage is to add the item to multiple collections.
-    unless headers.include?('collection')
+    unless headers.include?('col_hdls')
           STDERR.puts <<-MSG_CSV_HEADER_COLLECTION.gsub(/^\t*/, '')
-		The CSV input file must have the column heading 'collection' representing
-		the collection or collections to which the item belongs. Either the
-		collection handle or collection ID can be used and multiple collections
-		can be specified by using the delimiter specified in the DSpace manual
-		(usually '||').
+		The CSV input file must have the column heading 'col_hdls' representing
+		the collection or collections to which the item belongs. The collection
+		handle is expected (but the collection ID can also be used). Multiple
+		collections can be specified by using the delimiter specified in the
+		DSpace configuration for the Batch Metadata Editing tool (usually '||').
           MSG_CSV_HEADER_COLLECTION
       exit ERROR_CSV_HEADER_COLLECTION
     end

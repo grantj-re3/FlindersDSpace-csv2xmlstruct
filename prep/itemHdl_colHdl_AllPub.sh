@@ -11,23 +11,23 @@ db=dspace	# Database name
 sql="
 select
   i.item_id,
-  i.owning_collection c_owner,
-  (select substring(name,1,10) from collection where collection_id=i.owning_collection) c_owner_name,
+  i.owning_collection col_owner,
+  (select substring(name,1,10) from collection where collection_id=i.owning_collection) col_owner_name,
   array_to_string(array(
       select substring(name,1,10) from collection2item c2i2, collection c2 where c2i2.item_id=i.item_id and
       c2i2.collection_id <> i.owning_collection and c2i2.collection_id=c2.collection_id order by name
-  ), '||') c_others_name,
+  ), '||') col_others_name,
 
   (select text_value from metadatavalue where item_id=i.item_id and metadata_field_id=
     (select metadata_field_id from metadatafieldregistry where element='identifier' and qualifier='rmid')
   ) rmid,
   (select handle from handle where resource_id=i.item_id and resource_type_id=2) item_hdl,
-  (select handle from handle where resource_id=i.owning_collection and resource_type_id=3) c_owner_hdl,
+  (select handle from handle where resource_id=i.owning_collection and resource_type_id=3) col_owner_hdl,
   array_to_string(array(
       select handle from collection2item c2i2, handle where c2i2.item_id=i.item_id and
       c2i2.collection_id <> i.owning_collection and c2i2.collection_id=resource_id and
       resource_type_id=3 order by handle_id
-  ), '||') c_others_hdl
+  ), '||') col_others_hdl
 from
 (
   select
@@ -53,7 +53,7 @@ with
   delimiter ','
   csv
     header
-    force quote c_owner_name, c_others_name
+    force quote col_owner_name, col_others_name
 "
 
 descr="Show the RMID, item-handle, owner-handle, list of

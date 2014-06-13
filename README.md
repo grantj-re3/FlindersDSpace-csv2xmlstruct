@@ -78,11 +78,32 @@ in README*.md files within this directory.
 ### Obtain information from your Research MIS
 Obtain the following ERA target reporting-year (eg. ERA 2012) information
 from your Research MIS
-- Item metadata for research outputs in DSpace Simple Archive Format (SAF).
-  Each 4-digit FOR code will have its own collection hence its own
-  SAF-collection level directory.
 - RM-format (CSV1) CSV file which specifies an RMID per item plus a
   mapping to all corresponding collections for the ERA target reporting-year.
+- Item metadata for research outputs in DSpace Simple Archive Format (SAF).
+  * SAF item-level directories must be assigned the same name as the item's
+    RMID.
+  * SAF item-level dublin_core.xml files must contain an RMID-identifier
+    as shown below (and DSpace must be configured to store such a
+    Dublin Core RMID-identifier).
+```
+<dcvalue element="identifier" qualifier="rmid" ... >...</dcvalue>
+```
+  * Each 4-digit FOR code will have its own collection. SAF
+    collection-level directories must be assigned the same name as the
+    collection's 4-digit FOR code.
+
+Note 1: Even if an RMID (ie. item) must appear against several 4-digit
+FOR codes (ie. collections) it must only be defined once within the whole
+SAF tree (supplied by the Research MIS system). However, it will ultimately
+appear in all corresponding collections due to the RM-format (CSV1) CSV
+mapping file discussed above (also supplied by the Research MIS system).
+
+Note 2: This process assumes that the Research MIS system does not
+know (or chooses to ignore) which RMIDs already exist within DSpace
+and hence supplies _all_ RMIDs for the target ERA reporting-year.
+However because this suite of programs is DSpace-aware, aspects
+regarding duplication and mapping are dealt with by this workflow.
 
 ### bin/csv2xmlstruct.rb
 Create a community/collection DSpace structure to hold items for the ERA
@@ -190,7 +211,7 @@ into such structure(s). Before this time, handles for both items and
 collections have not been created. Hence this is *unsuitable* for
 extraction from your Research MIS.
 ```
-Item_Hdl,C_Owner_Hdl,C_Others_Hdl
+item_hdl,col_owner_hdl,col_others_hdl
 123456789/90,123456789/1111,123456789/1112||123456789/1113
 123456789/91,123456789/1114,
 ```
@@ -212,10 +233,17 @@ is, previous items which have an RMID can be deemed to satisfy both:
 
 Hence the hybrid CSV2/CSV3 format would look something like:
 ```
-RMID,Item_Hdl,C_Owner_Hdl,C_Others_Hdl
+rmid,item_hdl,col_owner_hdl,col_others_hdl
 1222333444,123456789/90,123456789/1111,123456789/1112||123456789/1113
 1222333555,123456789/91,123456789/1114,
 ```
+
+## Gotchas
+- At present, if the DSpace metadata contains FOR code/subject
+  information (eg. dc.subject.forgroup) that metadata is not
+  enhanced to show all FOR codes (even after mapping to multiple
+  FOR collections).
+
 
 ## Utilities
 
@@ -225,7 +253,7 @@ move some ERA 2010 (child) communities under a new parent community to
 conform to a new structure required by this suite of applications.
 
 ### prep/*.sh
-A variety of scripts for extracting useful and interesting (perhaps)
+A variety of scripts for extracting useful and (perhaps) interesting
 information from the DSpace database.
 
 Each script contains a brief description (assigned to the "descr"

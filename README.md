@@ -147,11 +147,21 @@ Batch Metadata Editing Tool (BMET) CSV file except that items are
 identified by their handle rather their item ID.
 
 ### bin/hdl2item_bmecsv.rb
-This application converts the above Handle-format (CSV3) CSV file into
-a BMET CSV format.
+This application takes the above Handle-format (CSV3) CSV file
+and converts the item-handle into an item-id as required for
+the BMET CSV format.
 
-The DSpace BMET can now be used to map any applicable items to all
-their collections.
+Then we can make other minor changes to the CSV file, in particular:
+- rename "col_hdls" column to "collection" column for BMET
+- remove unwanted columns (leaving only id and collection columns)
+```
+# Fix CSV columns for BMET
+awk -F\" '$4=="col_hdls"{$4="collection"} {printf "%s,%s\n",$2,$4}' hdl2item_bmecsv.csv > bmet.csv
+
+# Apply item mapping into multiple collections via the DSpace BMET
+$HOME/dspace/bin/dspace metadata-import -f bmet.csv |tee metadata-import.log
+```
+
 
 ## CSV types used in the above workflow
 ### CSV1 (RM) format

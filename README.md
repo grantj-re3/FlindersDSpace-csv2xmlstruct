@@ -81,17 +81,17 @@ from your Research MIS
 - RM-format (CSV1) CSV file which specifies an RMID per item plus a
   mapping to all corresponding collections for the ERA target reporting-year.
 - Item metadata for research outputs in DSpace Simple Archive Format (SAF).
-  * SAF item-level directories must be assigned the same name as the item's
-    RMID.
-  * SAF item-level dublin_core.xml files must contain an RMID-identifier
-    as shown below (and DSpace must be configured to store such a
-    Dublin Core RMID-identifier).
-```
-<dcvalue element="identifier" qualifier="rmid" ... >...</dcvalue>
-```
   * Each 4-digit FOR code will have its own collection. SAF
     collection-level directories must be assigned the same name as the
     collection's 4-digit FOR code.
+  * SAF item-level directories must be assigned the same name as the item's
+    RMID.
+  * SAF item-level dublin_core.xml files must contain an RMID-identifier
+    as shown below (and DSpace must be configured to recognise such a
+    Dublin Core RMID-identifier via the Metadata Registry).
+```
+<dcvalue element="identifier" qualifier="rmid" ... >...</dcvalue>
+```
 
 Note 1: Even if an RMID (ie. item) must appear against several 4-digit
 FOR codes (ie. collections) it must only be defined once within the whole
@@ -113,7 +113,7 @@ file.
 Use the DSpace structure-builder tool to convert the XML file into a
 community/collection hierarchy as described in the
 [Concepts](#concepts) section above. More information is provided
-[here](README_csv2xmlstruct.md).
+[here](README20_csv2xmlstruct.md).
 
 ### prep/itemHdl_colHdl_AllPub.sh
 Extract all RMIDs in all of DSpace in RMID-Only-format, CSV2.

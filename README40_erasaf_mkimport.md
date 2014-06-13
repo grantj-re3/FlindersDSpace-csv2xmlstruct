@@ -12,7 +12,7 @@ ERA SAF Tree Structure
 ----------------------
 
 The Simple Archive Format (SAF) tree structure and DSpace ERA tree
-structure are discussed [here](README_erasaf_pluckitem.md#era-saf-tree-structure).
+structure are discussed [here](README30_erasaf_pluckitem.md#era-saf-tree-structure).
 
 Example configuration and usage
 -------------------------------
@@ -58,5 +58,5 @@ Prerequisites
 -------------
 For erasaf_mkimport.rb (and other apps in this repo) to connect to the
 DSpace database, you will need create a file named dbc.rb as described
-[here](README_hdl2item_bmecsv.md#prerequisites).
+[here](README70_hdl2item_bmecsv.md#prerequisites).
 

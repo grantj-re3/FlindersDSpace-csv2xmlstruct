@@ -49,5 +49,5 @@ Prerequisites
 
 For query.rb and hence the comm2newparent.sh app (and other apps in this
 repo) to connect to the DSpace database, you will need create a file named
-dbc.rb as described [here](README_hdl2item_bmecsv.md#prerequisites).
+dbc.rb as described [here](README70_hdl2item_bmecsv.md#prerequisites).
 

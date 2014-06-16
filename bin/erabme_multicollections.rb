@@ -53,7 +53,7 @@ class BmetCsv
   # items being newly ingested into DSpace) and previous ERA
   # reporting-years (ie. items which already existed within
   # DSpace before the "target ERA reporting-year" ingest process
-  # began. The previous_year_csv is permitted to be nil.
+  # began). The previous_year_csv is permitted to be nil.
   ############################################################################
   def initialize(target_year_csv, previous_year_csv)
 

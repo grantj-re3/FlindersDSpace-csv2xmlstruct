@@ -66,7 +66,6 @@ where:
 
 Other utilities
 ---------------
-123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789
 
 - num_files_ResearchPubEra.sh counts the number of files for each item within
   each collection, under each sub-community, under the communities which match

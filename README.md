@@ -75,6 +75,8 @@ This suite of applications allows one to:
 More details regarding many of the applications listed below are given
 in README*.md files within this directory.
 
+### Phase 1: *Ingest new items*
+
 ### Obtain information from your Research MIS
 Obtain the following ERA target reporting-year (eg. ERA 2012) information
 from your Research MIS
@@ -140,6 +142,8 @@ which achieves this by invoking the DSpace import command over 150 times.
 
 Run the resulting shell script to import all (non-duplicate/non-plucked)
 target ERA reporting-year items into the newly created ERA structure.
+
+### Phase 2: *Map items to multiple collections*
 
 ### bin/rmcsv2hdlcsv.rb
 This application can only be run after the target ERA reporting-year

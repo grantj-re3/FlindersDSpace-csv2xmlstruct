@@ -46,11 +46,11 @@ overcome this problem like this:
 - perform the BMET import function
 
 Below is a CSV example where the second column (dc.type[en_US]) is populated
-but the last 3 columns are empty (resulting in those fields being deleted).
+but the last 2 columns are empty (resulting in those fields being deleted).
 ```
 id,dc.type[en_US],dc.type,dc.type[en]
-11,Article,,,
-22,Book,,,
+11,Article,,
+22,Book,,
 ```
 
 ### How to determine which languages are used for a given metadata field

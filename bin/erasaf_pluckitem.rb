@@ -50,6 +50,8 @@ class EraSafTree
   # Append this string to @era_root_dir_path to give the destination directory
   ERA_ROOT_DIR_PATH_DEST_SUFFIX = '_moved_out'
 
+  BASE_FILENAME_PLUCKED_ITEMS = 'plucked_items'
+
   CSV_ITEMS_SUMMARY_FORMAT =
     "\n  %s:\n" +
     "    Items (read from file):     %5d%s\n" +
@@ -110,6 +112,40 @@ class EraSafTree
 
     puts "\nTarget items plucked out of directory #{File.basename(@era_root_dir_path)}:"
     @plucked_items.each{|d| puts "  #{File.basename(d)}"}
+  end
+
+  ############################################################################
+  # Write @plucked_items to a file (one item per line)
+  # The item_type argument can be:
+  # - :name = SAF item-directory name (ie. RMID)
+  # - :path = SAF item-directory path
+  # - :regex = SAF item-directory name; within regex to match a CSV field
+  ############################################################################
+  def write_plucked_items(item_type=nil, filename=nil)
+    unless [:name, :path, :regex].include?(item_type)
+      STDERR.puts "ERROR: Invalid item_type '#{item_type}'"
+      exit 6
+    end
+    filename ||= "#{BASE_FILENAME_PLUCKED_ITEMS}_#{item_type}.txt"
+
+    puts "Writing list of items (by #{item_type}) plucked out of SAF tree. [File: #{filename}]"
+    begin_csv_field_re = "(^|,)"
+    end_csv_field_re = "(,|$)"
+
+    File.open(filename, "w"){|file|
+      @plucked_items.each{|dpath|
+
+        case item_type
+        when :path
+          file.puts dpath
+        when :regex
+          file.puts "#{begin_csv_field_re}#{dpath.split('/').last}#{end_csv_field_re}"
+        else	# :name
+          file.puts dpath.split('/').last
+        end
+
+      }
+    }
   end
 
   private
@@ -197,6 +233,10 @@ class EraSafTree
     era_tree = EraSafTree.new(root_dir, ARGV)
     era_tree.pluck_from_tree
     era_tree.report_plucked_items
+
+    era_tree.write_plucked_items(:name)
+    era_tree.write_plucked_items(:path)
+    era_tree.write_plucked_items(:regex)
   end
 
   private

@@ -81,6 +81,7 @@ class EraSafTree
 
     @target_items = []
     @plucked_items = []
+    @plucked_items_dest = []
     get_items_from_csv_files
   end
 
@@ -118,33 +119,33 @@ class EraSafTree
   # Write @plucked_items to a file (one item per line)
   # The item_type argument can be:
   # - :name = SAF item-directory name (ie. RMID)
-  # - :path = SAF item-directory path
-  # - :regex = SAF item-directory name; within regex to match a CSV field
+  # - :regex = regex to match a CSV field containing SAF item-directory name
+  # - :path_source = source SAF item-directory path
+  # - :path_destination = destination SAF item-directory path
   ############################################################################
   def write_plucked_items(item_type=nil, filename=nil)
-    unless [:name, :path, :regex].include?(item_type)
+    unless [:name, :regex, :path_source, :path_destination].include?(item_type)
       STDERR.puts "ERROR: Invalid item_type '#{item_type}'"
       exit 6
     end
     filename ||= "#{BASE_FILENAME_PLUCKED_ITEMS}_#{item_type}.txt"
 
     puts "Writing list of items (by #{item_type}) plucked out of SAF tree. [File: #{filename}]"
-    begin_csv_field_re = "(^|,)"
-    end_csv_field_re = "(,|$)"
+    re1 = "(^|,)"	# Regex to match the start of a CSV field
+    re2 = "(,|$)"	# Regex to match the end of a CSV field
 
     File.open(filename, "w"){|file|
-      @plucked_items.each{|dpath|
+      case item_type
+      when :path_destination
+        @plucked_items_dest.each{|dpath| file.puts dpath}
+      when :path_source
+        @plucked_items.each{|dpath| file.puts dpath}
+      when :regex
+        @plucked_items.each{|dpath| file.puts "#{re1}#{dpath.split('/').last}#{re2}"}
+      else	# :name
+        @plucked_items.each{|dpath| file.puts dpath.split('/').last}
 
-        case item_type
-        when :path
-          file.puts dpath
-        when :regex
-          file.puts "#{begin_csv_field_re}#{dpath.split('/').last}#{end_csv_field_re}"
-        else	# :name
-          file.puts dpath.split('/').last
-        end
-
-      }
+      end
     }
   end
 
@@ -215,6 +216,7 @@ class EraSafTree
     puts "Moving #{item_dpath_src}\n    to #{item_dpath_dest}"
     File.rename(item_dpath_src, item_dpath_dest)	# Move from src to dest tree
     @plucked_items << item_dpath_src
+    @plucked_items_dest << item_dpath_dest
   end
 
   public
@@ -235,7 +237,8 @@ class EraSafTree
     era_tree.report_plucked_items
 
     era_tree.write_plucked_items(:name)
-    era_tree.write_plucked_items(:path)
+    era_tree.write_plucked_items(:path_source)
+    era_tree.write_plucked_items(:path_destination)
     era_tree.write_plucked_items(:regex)
   end
 

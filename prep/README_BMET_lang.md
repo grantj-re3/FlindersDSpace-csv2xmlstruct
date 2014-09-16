@@ -5,21 +5,22 @@ Batch Metadata Editing Tool (BMET)
 
 Metadata fields have an associated language eg. en_US.
 For DSpace 3.x, the default.language value specified in dspace.cfg
-only appears to apply to forms and not to the BMET.
+appears to apply to web submission forms and Simple Archive Format
+import records but not to the BMET.
 
 However when you edit fields using the BMET, you have the option to specify
 the language with a CSV file like so:
 ```
-id,dc.type[en_US]
-11,Article
-22,Book
+id,collection,dc.type[en_US]
+11,123456789/1,Article
+22,123456789/1,Book
 ```
 
 rather than:
 ```
-id,dc.type
-11,Article
-22,Book
+id,collection,dc.type
+11,123456789/1,Article
+22,123456789/1,Book
 ```
 
 In the first example above, dc.type will be assigned a language of 'en_US'
@@ -37,20 +38,23 @@ than create a second field. This might not be a problem if:
 - you follow the BMET-export, edit-CSV, BMET-import workflow implied in the
   manual
 
-However, if you are importing an independently created CSV you may wish to
-overcome this problem like this:
+I am assuming that having multiple metadata fields (eg. dc.type) with
+different language qualifiers is not intentional. If it is in your case
+then the solution below may not be useful to you.
+
+__Potential solution__: You may wish to overcome this problem like this:
 - determine which languages are used for the given metadata field (see below)
 - in the CSV file to be imported, blank out (ie. delete) all but one of
   the columns (which I'll call the target column)
 - put the desired metadata in the target column
 - perform the BMET import function
 
-Below is a CSV example where the second column (dc.type[en_US]) is populated
+Below is a CSV example where the third column (dc.type[en_US]) is populated
 but the last 2 columns are empty (resulting in those fields being deleted).
 ```
-id,dc.type[en_US],dc.type,dc.type[en]
-11,Article,,
-22,Book,,
+id,collection,dc.type[en_US],dc.type,dc.type[en]
+11,123456789/1,Article,,
+22,123456789/1,Book,,
 ```
 
 ### How to determine which languages are used for a given metadata field

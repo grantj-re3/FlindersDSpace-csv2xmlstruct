@@ -124,7 +124,7 @@ class Items4FieldUpdates
       end
       @items_from_saf[item_id][:fields] = fields
     }
-    exit(2) if have_found_error
+    exit 2 if have_found_error
     STDERR.puts "\n@items_from_saf=#{@items_from_saf.inspect}\n\n" if DEBUG
   end
 
@@ -341,7 +341,7 @@ class Items4FieldUpdates
       end
 
     }
-    exit(3) if have_found_error
+    exit 3 if have_found_error
     build_csv
   end
 
@@ -356,28 +356,33 @@ class Items4FieldUpdates
   ############################################################################
   def build_csv
     STDERR.puts "\n@csv_info=#{@csv_info.inspect}" if DEBUG
+    if @csv_info.empty?
+      STDERR.puts "No changes are required, so no BMET CSV file has been created."
+      return
+    end
 
-    langs_in_csv = @langs_in_db - Set.new([DSPACE_FIELD_LANGUAGE])
-    empty_fields = CSV_DELIMITER * langs_in_csv.size
+    other_csv_langs = @langs_in_db - Set.new([DSPACE_FIELD_LANGUAGE])
+    empty_fields_str = CSV_DELIMITER * other_csv_langs.size
     lines = []		# An array of CSV lines
 
     # Build the CSV header-line
     lang_str = DSPACE_FIELD_LANGUAGE ? "[#{DSPACE_FIELD_LANGUAGE}]" : ''
-    hdr = "id#{CSV_DELIMITER}#{field_name}#{lang_str}"
-    hdr << langs_in_csv.inject(''){|s, lang|
-      lang_str = lang ? "[#{lang}]" : ''
-      s << "#{CSV_DELIMITER}#{field_name}#{lang_str}"
+    hdr_main_columns = [ "id", field_name + lang_str ]
+
+    hdr_other_columns = other_csv_langs.inject([]){|a, lang|
+      a << field_name + (lang ? "[#{lang}]" : '')
     }
-    lines << hdr
+    # Sort hdr_other_columns so that CSV header is deterministic
+    lines << (hdr_main_columns + hdr_other_columns.sort).join(CSV_DELIMITER)
 
     # Build the CSV item-lines
     @csv_info.each{|item_id, r|
       lines << "#{CSV_QUOTE}#{item_id}#{CSV_QUOTE}#{CSV_DELIMITER}" +
-        "#{CSV_QUOTE}#{r[:new_field_values].sort.to_a.join(VALUE_DELIMITER)}#{CSV_QUOTE}#{empty_fields}"
+        "#{CSV_QUOTE}#{r[:new_field_values].sort.to_a.join(VALUE_DELIMITER)}#{CSV_QUOTE}#{empty_fields_str}"
     }
     fname = "#{CSV_FILENAME_PREFIX}#{@cmd_switch}.csv"
     STDERR.puts "Writing BMET CSV-data to file '#{fname}'"
-    File.write_string(fname, lines.join(NEWLINE))
+    File.write_string(fname, lines.join(NEWLINE) + NEWLINE)
   end
 
   ############################################################################
@@ -422,9 +427,14 @@ class Items4FieldUpdates
 		  into DSpace.
     MSG_COMMAND_LINE_ARGS
 
-    if ARGV.length != 3 || ARGV.include?('-h') || ARGV.include?('--help')
+    if ARGV.include?('-h') || ARGV.include?('--help')
       STDERR.puts msg
-      exit 1
+      exit 0
+    end
+
+    unless ARGV.length == 3
+      STDERR.puts "\nERROR: Expected 3 arguments, but #{ARGV.length} were entered.\n#{msg}"
+      exit 4
     end
 
     cmd_switch = ARGV[0]
@@ -432,18 +442,18 @@ class Items4FieldUpdates
     plucked_out_dir = ARGV[2]
 
     unless COMMAND_LINE_SWITCHES.include?(cmd_switch)
-      STDERR.puts "\nERROR: Invalid switch '#{cmd_switch}'\n#{msg}"
+      STDERR.puts "\nERROR: Invalid command line switch: '#{cmd_switch}'\n#{msg}"
       exit 1
     end
 
     unless File.file?(plucked_out_items_csv)
       STDERR.puts "\nERROR: '#{plucked_out_items_csv}' is not a (CSV) file.\n#{msg}"
-      exit 1
+      exit 5
     end
 
     unless File.directory?(plucked_out_dir)
       STDERR.puts "\nERROR: '#{plucked_out_dir}' is not a (SAF) directory.\n#{msg}"
-      exit 1
+      exit 6
     end
   end
 

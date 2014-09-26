@@ -2,8 +2,12 @@
 #
 # WARNING: USE THIS SCRIPT WITH GREAT CAUTION... as per message below.
 #
-# Usage:  sh del_lang_field.sh [--force]
+# Usage:  sh del_lang_field.sh [--force] > lang.log 2> lang.err
 # Delete the dc.language[.*] field within all SAF-tree dublin_core.xml files.
+#
+# Copyright (c) 2014, Flinders University, South Australia. All rights reserved.
+# Contributors: eResearch@Flinders, Library, Information Services, Flinders University.
+# See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
 #
 ##############################################################################
 

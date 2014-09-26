@@ -3,6 +3,10 @@
 #
 # Check the dc.identifier.rmid agrees with item dir
 #
+# Copyright (c) 2014, Flinders University, South Australia. All rights reserved.
+# Contributors: eResearch@Flinders, Library, Information Services, Flinders University.
+# See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
+#
 ##############################################################################
 
 # All SAF-tree paths should be:

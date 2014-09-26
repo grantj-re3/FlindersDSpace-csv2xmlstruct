@@ -11,16 +11,16 @@ import records but not to the BMET.
 However when you edit fields using the BMET, you have the option to specify
 the language with a CSV file like so:
 ```
-id,collection,dc.type[en_US]
-11,123456789/1,Article
-22,123456789/1,Book
+id,dc.type[en_US]
+11,Article
+22,Book
 ```
 
 rather than:
 ```
-id,collection,dc.type
-11,123456789/1,Article
-22,123456789/1,Book
+id,dc.type
+11,Article
+22,Book
 ```
 
 In the first example above, dc.type will be assigned a language of 'en_US'
@@ -49,12 +49,12 @@ __Potential solution__: You may wish to overcome this problem like this:
 - put the desired metadata in the target column
 - perform the BMET import function
 
-Below is a CSV example where the third column (dc.type[en_US]) is populated
+Below is a CSV example where the second column (dc.type[en_US]) is populated
 but the last 2 columns are empty (resulting in those fields being deleted).
 ```
-id,collection,dc.type[en_US],dc.type,dc.type[en]
-11,123456789/1,Article,,
-22,123456789/1,Book,,
+id,dc.type[en_US],dc.type,dc.type[en]
+11,Article,,
+22,Book,,
 ```
 
 ### How to determine which languages are used for a given metadata field

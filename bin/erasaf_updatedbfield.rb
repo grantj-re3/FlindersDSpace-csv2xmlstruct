@@ -72,7 +72,16 @@ class Items4FieldUpdates
   COMMAND_LINE_SWITCHES = %w{add_forgroups replace_type}
 
   ############################################################################
-  # Create this object.
+  # Create this object which
+  # processes items which have already been plucked out of the RMIS
+  # SAF-tree because they already exist in the database. (Hence these
+  # items were not included in the SAF import.) The processing involves
+  # updating certain database fields based on newer information in the
+  # RMIS SAF-tree (if applicable). See the usage message in the method
+  # verify_command_line_args(), where:
+  # - cmd_switch = SWITCH
+  # - plucked_out_items_csv = PLUCKED_OUT_ITEMS.CSV
+  # - plucked_out_dir = PLUCKED_OUT_DIR
   ############################################################################
   def initialize(cmd_switch, plucked_out_items_csv, plucked_out_dir)
     @cmd_switch = cmd_switch	# What type of field-processing will be done
@@ -231,7 +240,7 @@ class Items4FieldUpdates
   ############################################################################
   # Return the Qualified Dublin Core field-name string in the form
   # 'dc.FIELD[.QUALIFIER]' where the component within square brackets
-  # [...] may not be present.
+  # may not be present.
   ############################################################################
   def field_name
     case @cmd_switch

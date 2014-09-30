@@ -8,6 +8,13 @@
 user=$USER	# Database user: Assume same name as the Unix user
 db=dspace	# Database name
 
+# The parent community of all of the ERA reporting-year communities.
+parent_era_year_comm_name="Research Publications"
+
+# A regex which matches all ERA reporting-year community names. These must
+# be children of the above community.
+era_year_comm_name_regex='^ERA 2012$'
+
 sql="
 select
   com2c.collection_id,
@@ -21,7 +28,11 @@ where
   and h.resource_type_id = 3
   and com2c.community_id in
     (select child_comm_id from community2community where parent_comm_id in
-      (select community_id from community where name='ERA 2012')
+      (select community_id from community where name~'$era_year_comm_name_regex' and community_id in
+        (select child_comm_id from community2community where parent_comm_id =
+          (select community_id from community where name='$parent_era_year_comm_name')
+        )
+      )
     )
 order by collection_name
 "
@@ -37,7 +48,10 @@ with
     force quote collection_id, handle, collection_name
 "
 
-descr="List Handle vs Collection Name after importing new ERA 2012 structure."
+descr="Within the DSpace ERA structure, list handle vs collection name:
+- under the communities which match the regex /$era_year_comm_name_regex/
+- under the '$parent_era_year_comm_name' community.
+"
 
 ##############################################################################
 psql_opts="-U $user -d $db -A -c \"$query\""

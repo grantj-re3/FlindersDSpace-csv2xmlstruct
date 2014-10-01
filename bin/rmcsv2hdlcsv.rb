@@ -72,13 +72,23 @@ class RmCsv2HandleCsv
 
   ############################################################################
   # Create a new object from the specified CSV input file.
-  def initialize(csv_in_filename, era_year_handle)
+  def initialize(csv_in_filename, era_year_handle, rmid_from_era_year_handles_string)
     @in_file = csv_in_filename
     verify_in_file
 
     @db_conn = PG::Connection.connect(DB_CONNECT_INFO)	# Connect to the DB
     @era_year_handle = era_year_handle
     verify_era_year_handle
+
+    @rmid_from_era_year_handles_string = rmid_from_era_year_handles_string
+    if @rmid_from_era_year_handles_string == 'any'
+      @rmid_from_era_year_handles = nil
+      @rmid_from_era_year_handles_regex = nil
+    else
+      @rmid_from_era_year_handles = rmid_from_era_year_handles_string.split(',')
+      @rmid_from_era_year_handles_regex = "^(#{@rmid_from_era_year_handles.join('|')})$"
+    end
+    verify_rmid_from_era_year_handles
 
     @csv_out_headers = nil
     @csv_out_data = nil
@@ -98,6 +108,7 @@ class RmCsv2HandleCsv
   ############################################################################
   # Verify the RM-CSV input file
   def verify_in_file
+    STDERR.puts "\nRM input-CSV filename:                    #{@in_file}"
     unless File.file?(@in_file) && File.readable?(@in_file)
       STDERR.puts "CSV file '#{@in_file}' is not found or is not readable."
       exit 6
@@ -108,6 +119,7 @@ class RmCsv2HandleCsv
   ############################################################################
   # Verify the ERA reporting-year handle
   def verify_era_year_handle
+    STDERR.puts "\nTarget ERA reporting-year handle:         #{@era_year_handle}"
     sql = <<-SQL_ERA_YEAR_COMMUNITY_NAME.gsub(/^\t*/, '')
 	select community_id,name from community where community_id = 
 	  (select resource_id from handle where handle='#{@era_year_handle}' and resource_type_id=#{RESOURCE_TYPE_IDS[:community]})
@@ -118,8 +130,32 @@ class RmCsv2HandleCsv
           STDERR.puts "Quitting: No community found when looking up ERA reporting-year handle: '#{@era_year_handle}'"
           exit 5
         else
-          result.each{|row| STDERR.puts "ERA reporting-year community name: #{row['name']}" }
+          result.each{|row| STDERR.puts "Target ERA reporting-year community name: #{row['name']}" }
         end
+      }
+    }
+  end
+
+  ############################################################################
+  # Verify the ERA reporting-year handles (from which RMIDs shall be selected)
+  def verify_rmid_from_era_year_handles
+    STDERR.puts "\nERA reporting-year handles for RMIDs:     #{@rmid_from_era_year_handles_string}"
+    return if @rmid_from_era_year_handles_string == 'any'
+
+    @rmid_from_era_year_handles.each{|hdl|
+      sql = <<-SQL_RMID_ERA_YEAR_COMMUNITY_NAME.gsub(/^\t*/, '')
+	select community_id,name from community where community_id = 
+	  (select resource_id from handle where handle='#{hdl}' and resource_type_id=#{RESOURCE_TYPE_IDS[:community]})
+      SQL_RMID_ERA_YEAR_COMMUNITY_NAME
+      db_connect{|conn|
+        conn.exec(sql){|result|
+          if result.ntuples == 0
+            STDERR.puts "Quitting: No community found when looking up ERA reporting-year handle (for RMIDs): '#{hdl}'"
+            exit 5
+          else
+            result.each{|row| STDERR.puts "  Handle: #{hdl};  Community name: #{row['name']}" }
+          end
+        }
       }
     }
   end
@@ -131,8 +167,8 @@ class RmCsv2HandleCsv
   #   database
   # - If from == :era_year, RMID can only be selected from within the
   #   specified ERA year
-  def get_handle_for_rmid(rmid, from=:anywhere)
-    if from == :anywhere
+  def get_handle_for_rmid(rmid)
+    if @rmid_from_era_year_handles_regex == nil
       msg_append = "anywhere within database"
       sql = <<-SQL_HANDLE4RMID1.gsub(/^\t*/, '')
 	select
@@ -144,8 +180,8 @@ class RmCsv2HandleCsv
 	  text_value='#{rmid}' and metadata_field_id=
 	    (select metadata_field_id from metadatafieldregistry where element='identifier' and qualifier='rmid');
       SQL_HANDLE4RMID1
-    elsif from == :era_year
-      msg_append = "for ERA reporting-year with handle #{@era_year_handle}"
+    else
+      msg_append = "for ERA reporting-year with handles regex #{@rmid_from_era_year_handles_regex}"
       sql = <<-SQL_HANDLE4RMID2.gsub(/^\t*/, '')
 	select
 	  i.item_id,
@@ -161,7 +197,7 @@ class RmCsv2HandleCsv
 	  where
 	    com2c.community_id in
 	      (select child_comm_id from community2community where parent_comm_id in
-	        (select resource_id from handle where handle='#{@era_year_handle}' and resource_type_id=#{RESOURCE_TYPE_IDS[:community]})
+	        (select resource_id from handle where handle~'#{@rmid_from_era_year_handles_regex}' and resource_type_id=#{RESOURCE_TYPE_IDS[:community]})
 	      )
 	    and c2i.collection_id=com2c.collection_id
 	    and c2i.item_id not in (select item_id from item where withdrawn=true)
@@ -249,11 +285,13 @@ class RmCsv2HandleCsv
   ############################################################################
   # Convert the CSV input file to CSV data sent to stdout. 
   def convert
+    STDERR.print "\nThis may take 10 minutes or more. Lines processed: "
+    line_in_count = 0
+
     # Create an object to store *all* lines of the *output* CSV
     @csv_out_data = FasterCSV.generate(FCSV_OUT_OPTS){|csv_out| 
 
       # Iterate thru each *input* line
-      line_in_count = 0
       FasterCSV.foreach(@in_file, FCSV_IN_OPTS) {|line_in|
         line_in_count += 1
         if line_in_count == 1
@@ -284,8 +322,10 @@ class RmCsv2HandleCsv
           end
         }
         csv_out << line_out
+        STDERR.print "#{line_in_count} " if line_in_count % 200 == 0
       }
     }
+    STDERR.puts "; Total lines #{line_in_count} "
   end
 
   ############################################################################
@@ -309,15 +349,42 @@ class RmCsv2HandleCsv
   ############################################################################
   # Verify the command line arguments.
   def self.verify_command_line_args
-    if ARGV.length != 2 || ARGV.include?('-h') || ARGV.include?('--help')
+    if ARGV.length != 3 || ARGV.include?('-h') || ARGV.include?('--help')
       STDERR.puts <<-MSG_COMMAND_LINE_ARGS.gsub(/^\t*/, '')
-		Usage:  #{File.basename $0}  RM_FILE.csv  ERA_YEAR_HANDLE
+		Usage:  #{File.basename $0}  RM_FILE.csv  ERA_YEAR_HANDLE  RMID_FROM_HANDLES
 		where:
-		- RM_FILE.csv contains an extract from RM (ie. your
-		  Research Management Information System) with columns:
+		- RM_FILE.csv contains an extract from RM (ie. your Research Management
+		  Information System) with case-sensitive column names:
 		    #{CSV_IN_COLUMNS.join(',')}
-		- ERA_YEAR_HANDLE is the DSpace handle representing the
-		  ERA reporting-year corresponding to RM_FILE.csv
+
+		- ERA_YEAR_HANDLE is the DSpace handle representing the ERA reporting-year
+		  corresponding to RM_FILE.csv. Collection handles shall be derived from this
+		  hierarchy.
+
+		- RMID_FROM_HANDLES contain a comma-separated list (without spaces) of ERA
+		  reporting-year (community) handles representing the *range* of communities
+		  in which RMIDs in RM_FILE.csv shall be found. If the corresponding RMIDs
+		  are permitted to be found anywhere within the DSpace database, use the
+		  word 'any' for this parameter.
+
+		  Example 1: If this is the first ERA reporting-year which you have entered
+		  into DSpace, and you want this program to only search for RMIDs from this
+		  ERA reporting-year, then repeat the ERA_YEAR_HANDLE for this parameter.
+
+		  Example 2: 
+		  * Assume the target ERA reporting-year is ERA 2015 (which has a reporting
+		    period of 1 Jan 2008 to 31 Dec 2013).
+		  * Assume that ERA metadata has been loaded into DSpace for ERA 2010
+		    (which has a reporting period of 1 Jan 2003 to 31 Dec 2008) and
+		    ERA 2012 (which has a reporting period of 1 Jan 2005 to 31 Dec 2010).
+		    Hence you can see that some ERA 2015 research outputs may also
+		    appear in ERA 2010 and ERA 2012.
+		  * Assume that RMIDs exist in other areas of DSpace but you only wish to use
+		    those found within ERA 2010, 2012 and 2015 reporting-year communities.
+		  Hence, this RMID_FROM_HANDLES parameter should be look something like:
+		      123456789/1,123456789/9,123456789/15
+		  where these handles correspond to ERA 2010, ERA 2012 and ERA 2015
+		  reporting-year communities.
 
 		This application converts the RM-CSV input columns:
 		    #{CSV_IN_COLUMNS.join(',')}
@@ -338,13 +405,12 @@ class RmCsv2HandleCsv
     verify_command_line_args
     fname = ARGV[0]
     era_year_handle = ARGV[1]
+    rmid_from_era_year_handles_string = ARGV[2]
 
     STDERR.puts "\nConvert an RM-CSV file to a Handle-CSV file for the given ERA reporting-year"
     STDERR.puts   "----------------------------------------------------------------------------"
-    STDERR.puts "RM input-CSV filename: #{fname}"
-    STDERR.puts "ERA reporting-year community handle: #{era_year_handle}"
 
-    csv_out = RmCsv2HandleCsv.new(fname, era_year_handle)
+    csv_out = RmCsv2HandleCsv.new(fname, era_year_handle, rmid_from_era_year_handles_string)
     STDERR.puts
     puts csv_out
   end

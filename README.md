@@ -70,6 +70,27 @@ This suite of applications allows one to:
   collections.
 
 
+## Warning
+
+Most of the programs in this repository create DSpace Simple Archive Format
+(SAF) or Batch Metadata Editing Tool (BMET) files and directories so are
+fairly safe to run on your system. However, please exercise great
+caution when:
+- running the DSpace structure-builder tool
+- importing items into DSpace using SAF (eg. the script created by
+  bin/erasaf_mkimport.rb)
+- updating items in DSpace using BMET (eg. during phases 2 and 3)
+- running programs which can potentially make changes to huge
+  numbers of (intended or unintended) files eg. utils/del_lang_field.sh
+
+To use this software, it is assumed you have a good understanding
+of the DSpace application, Linux/Unix shell and perhaps a little
+understanding of Ruby.
+
+Do not use this software unless you know what you are doing.
+
+**Use this software at your own risk.**
+
 ## Workflow
 
 More details regarding many of the applications listed below are given
@@ -117,12 +138,18 @@ community/collection hierarchy as described in the
 [Concepts](#concepts) section above. More information is provided
 [here](README20_csv2xmlstruct.md).
 
-### prep/itemHdl_colHdl_AllPub.sh
-Extract all RMIDs in all of DSpace in RMID-Only-format, CSV2.
-Alternatively, use prep/itemHdl_colHdl_ResearchPubEra.sh to extract
-all RMIDs in all DSpace ERA reporting year trees in RMID-Only-format,
-CSV2. You should extract this data at this point in the workflow
-before new items are added for the target year.
+### prep/itemHdl_colHdl_ResearchPubEra.sh
+Extract all RMIDs in all DSpace ERA reporting year trees in
+RMID-Only-format, CSV2. (Alternatively, use
+prep/itemHdl_colHdl_AllPub.sh to extract all RMIDs in all of
+DSpace in RMID-Only-format, CSV2.) You should extract this
+data at this point in the workflow before new items are added
+for the target year.
+
+If any RMIDs are null, such item records will be grouped
+together at the bottom of this file (due to the SQL 'order
+by' clause). This workflow has only been used with such
+null-RMID item records removed from this CSV file.
 
 ### bin/erasaf_check.rb
 Perform some checking on the ERA SAF-tree.
@@ -188,6 +215,37 @@ $HOME/dspace/bin/dspace metadata-import -f bmet.csv |tee metadata-import.log
 ```
 
 
+### :bell:  *Phase 3 - Update old items with new field values*
+
+### bin/erasaf_updatedbfield.rb
+
+This program processes items which have already been plucked out of the RMIS
+SAF-tree because they already exist in the database. (Hence these
+items were not included in the SAF import.) The processing involves
+updating certain database fields based on newer information in the
+RMIS SAF-tree (if applicable).
+
+The functionality of the program is controlled by a command line
+switch which can have the value 'add_forgroups' or 'replace_type.
+
+- 'add_forgroups' switch: This program will compare each item's
+  list of dc.subject.forgroup fields in the DSpace database with
+  those in the Research MIS data (in the Simple Archive Format
+  (SAF) tree specified by PLUCKED_OUT_DIR). If the RMIS data
+  for a particular item contains any additional dc.subject.forgroup
+  fields, those extra fields will be added to the database (by
+  running this script and importing the resulting CSV file using
+  the DSpace Batch Metadata Editing Tool).
+
+- 'replace_type' switch: This program will compare each item's
+  dc.type field in the DSpace database with that in the Research
+  MIS data (in the Simple Archive Format (SAF) tree specified by
+  PLUCKED_OUT_DIR). If the two fields are different, the database
+  copy of the field will be replaced with the SAF copy (by
+  running this script and importing the resulting CSV file using
+  the DSpace Batch Metadata Editing Tool).
+
+
 ## CSV types used in the above workflow
 ### CSV1 (RM) format
 CSV1 format is only suitable if the target ERA reporting year is
@@ -242,21 +300,43 @@ rmid,item_hdl,col_owner_hdl,col_others_hdl
 1222333555,123456789/91,123456789/1114,
 ```
 
-## Gotchas
-- At present, if the DSpace metadata contains FOR code/subject
-  information (eg. dc.subject.forgroup) that metadata is not
-  enhanced to show all FOR codes (even after mapping to multiple
-  FOR collections).
-
-
 ## Utilities
 
+### split command
+
+To divide BMET CSV files into units of 1000 lines or less (as recommended
+in the DSpace manual) I found the linux/unix 'split' command very useful.
+Type 'man split' on your system for help. The method used was:
+- remove the CSV header line from the large file
+- split into multiple smaller files
+- add the CSV header line to every resultant smaller file
+
 ### bin/comm2newparent
+
 This tool is not required for the above workflow, however we used it to
 move some ERA 2010 (child) communities under a new parent community to
 conform to a new structure required by this suite of applications.
 
+### utils/del_lang_field.sh
+
+This tool is not required for the above workflow, however we used it to
+delete the dc.language[.*] field within all SAF-tree dublin_core.xml files.
+Exercise great caution if you use this script!
+
+### prep/ itemHdl_colHdl_forgroup_ResearchPubEra.sh
+
+This tool is not required for the above workflow, however we used it to
+backup ERA 2010 dc.subject.forgroup information (for later verification
+that ERA 2010 4-digit FOR codes have a one-to-one correspondance to ERA 2010
+4-digit FOR code collections). We used this script rather than the
+output of the Batch Metadata Editing Tool export of the ERA 2010
+community because it appears BMET will only export items owned by
+collections within the community (whereas this script also includes
+items owned outside the community but mapped into collections within
+the community).
+
 ### prep/*.sh
+
 A variety of scripts for extracting useful and (perhaps) interesting
 information from the DSpace database.
 

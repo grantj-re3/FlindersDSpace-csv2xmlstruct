@@ -54,6 +54,8 @@ class Items4FieldUpdates
 
   DEBUG = true
 
+  ID_OR_HANDLE = :id	# :id=Use BMET 'id' column; :handle=Use 'handle' column
+
   CSV_DELIMITER = ','
   CSV_QUOTE = '"'
   CSV_FILENAME_PREFIX = "#{File.basename($0, '.rb')}_"
@@ -262,9 +264,11 @@ class Items4FieldUpdates
   ############################################################################
   def to_bmet_csv_add_forgroups
     # A forgroup name has the format "0101 - Pure Mathematics"
+    # or surprising, even the format "0101\n       - Pure Mathematics"
     # where "0101" is the forcode.
     @langs_in_db = Set.new
     @csv_info = {}
+    forcode_regex = Regexp.new('^([\d]+)([^\d].*$|$)', Regexp::MULTILINE)
 
     @items_from_db.each{|item_id,db_hash|
       fields_in_db = Set.new
@@ -272,24 +276,27 @@ class Items4FieldUpdates
       field_values = {}		# Field values for both DB & SAF
 
       db_hash[:fields].each{|f|
-        forcode = f[:value].sub(/^([\d]+)[^\d].*$/, '\1')
+        forcode = f[:value].sub(forcode_regex, '\1')
         fields_in_db << forcode
-        field_values[forcode] = f[:value]	# Store value for this FOR code
+#STDERR.puts "@@@ db_hash item_id=#{item_id} forcode=#{forcode}"
+        field_values[forcode] = f[:value].gsub(/[\s]+/, ' ')	# Store value for this FOR code
         @langs_in_db << f[:lang]
       }
 
       @items_from_saf[item_id][:fields].each{|f|
-        forcode = f[:value].sub(/^([\d]+)[^\d].*$/, '\1')
+        forcode = f[:value].sub(forcode_regex, '\1')
         fields_in_saf << forcode
-        field_values[forcode] = f[:value]	# Store/overwrite value for this FOR code
+#STDERR.puts "@@@ items_from_saf item_id=#{item_id} forcode=#{forcode}"
+        field_values[forcode] = f[:value].gsub(/[\s]+/, ' ')	# Store/overwrite value for this FOR code
       }
-      STDERR.printf("item_id=%s; SAF-fields=%s; DB-fields=%s", item_id, fields_in_saf.inspect, fields_in_db.inspect) if DEBUG
+      STDERR.printf("item_id=%s; item-hdl=%s; SAF-fields=%s; DB-fields=%s", item_id, db_hash[:handle], fields_in_saf.inspect, fields_in_db.inspect) if DEBUG
       extra_fields = fields_in_saf - fields_in_db	# Extra fields not already in DB
 
       if extra_fields.size > 0
         @csv_info[item_id] = {
           #:collection_handle => db_hash[:collection_handle],
-          :new_field_values => (fields_in_db | extra_fields).inject(Set.new){|s,forcode| s << field_values[forcode]}
+          :new_field_values => (fields_in_db | extra_fields).inject(Set.new){|s,forcode| s << field_values[forcode]},
+          :handle => db_hash[:handle],
         }
         STDERR.puts "; DB-add #{extra_fields.inspect}" if DEBUG
       else
@@ -336,13 +343,14 @@ class Items4FieldUpdates
       end
 
       next if have_found_error			# Skip processing this item_id if errors
-      STDERR.printf("item_id=%s; SAF-fields=%s; DB-fields=%s", item_id, fields_in_saf.inspect, fields_in_db.inspect) if DEBUG
+      STDERR.printf("item_id=%s; item-hdl=%s; SAF-fields=%s; DB-fields=%s", item_id, db_hash[:handle], fields_in_saf.inspect, fields_in_db.inspect) if DEBUG
 
       # No update needed if dc.type already same for DB & SAF
       unless fields_in_db == fields_in_saf
         @csv_info[item_id] = {
           #:collection_handle => db_hash[:collection_handle],
           :new_field_values => fields_in_saf.inject(Set.new){|s,type| s << type},
+          :handle => db_hash[:handle],
         }
         STDERR.puts "; DB-replace-with #{@csv_info[item_id][:new_field_values].inspect}" if DEBUG
       else
@@ -376,7 +384,7 @@ class Items4FieldUpdates
 
     # Build the CSV header-line
     lang_str = DSPACE_FIELD_LANGUAGE ? "[#{DSPACE_FIELD_LANGUAGE}]" : ''
-    hdr_main_columns = [ "id", field_name + lang_str ]
+    hdr_main_columns = [ "#{ID_OR_HANDLE}", field_name + lang_str ]
 
     hdr_other_columns = other_csv_langs.inject([]){|a, lang|
       a << field_name + (lang ? "[#{lang}]" : '')
@@ -385,11 +393,12 @@ class Items4FieldUpdates
     lines << (hdr_main_columns + hdr_other_columns.sort).join(CSV_DELIMITER)
 
     # Build the CSV item-lines
-    @csv_info.each{|item_id, r|
-      lines << "#{CSV_QUOTE}#{item_id}#{CSV_QUOTE}#{CSV_DELIMITER}" +
+    @csv_info.sort.each{|item_id, r|
+      item = ID_OR_HANDLE == :handle ? r[:handle] : item_id
+      lines << "#{CSV_QUOTE}#{item}#{CSV_QUOTE}#{CSV_DELIMITER}" +
         "#{CSV_QUOTE}#{r[:new_field_values].sort.to_a.join(VALUE_DELIMITER)}#{CSV_QUOTE}#{empty_fields_str}"
     }
-    fname = "#{CSV_FILENAME_PREFIX}#{@cmd_switch}.csv"
+    fname = "#{CSV_FILENAME_PREFIX}#{@cmd_switch}.#{ID_OR_HANDLE}.csv"
     STDERR.puts "Writing BMET CSV-data to file '#{fname}'"
     File.write_string(fname, lines.join(NEWLINE) + NEWLINE)
   end
@@ -499,6 +508,7 @@ class Items4FieldUpdates
     STDERR.printf "Command line switch:          %s\n", cmd_switch
     STDERR.printf "Plucked-out items CSV file:   %s\n", plucked_out_items_csv
     STDERR.printf "Plucked-out items directory:  %s\n", plucked_out_dir
+    STDERR.printf "Output CSV-key column:        %s\n", ID_OR_HANDLE.to_s
     STDERR.puts
 
     items = Items4FieldUpdates.new(cmd_switch, plucked_out_items_csv, plucked_out_dir)

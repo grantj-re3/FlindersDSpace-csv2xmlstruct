@@ -162,12 +162,13 @@ items from the SAF tree so that they will not be imported into DSpace
 (as discussed in the [Concepts](#concepts) section above).
 
 In order to prepare for phase 3 (Update old items with new field values)
-your should create a CSV file containing only items which have been
-plucked out of the SAF. After running bin/erasaf_pluckitem.rb (which
+you should create a CSV file containing only items which have been
+plucked out of the SAF-tree. After running bin/erasaf_pluckitem.rb (which
 creates the file plucked_items_regex.txt) you can do that as below.
 ```
 # Copy the header line from the earlier database extract
 head -1 itemHdl_colHdl_ResearchPubEra.csv > itemHdl_colHdl_ResearchPubEra_pluckedout.csv
+
 # Extract the plucked-out lines from the earlier database extract
 egrep -f plucked_items_regex.txt itemHdl_colHdl_ResearchPubEra.csv >> itemHdl_colHdl_ResearchPubEra_pluckedout.csv
 ```

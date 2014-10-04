@@ -427,7 +427,8 @@ class Items4FieldUpdates
 		  PLUCKED_OUT_DIR). If the two fields are different, the database
 		  copy of the field will be replaced with the SAF copy (by
 		  running this script and importing the resulting CSV file using
-		  the DSpace Batch Metadata Editing Tool).
+		  the DSpace Batch Metadata Editing Tool). It expects one dc.type
+		  field per item.
 
 		  PLUCKED_OUT_ITEMS.CSV is a subset of the CSV file produced from
 		  running itemHdl_colHdl_ResearchPubEra.sh (or itemHdl_colHdl_AllPub.sh).

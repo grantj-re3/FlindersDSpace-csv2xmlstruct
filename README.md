@@ -161,6 +161,17 @@ perhaps exist independently of ERA) then this application "plucks" such
 items from the SAF tree so that they will not be imported into DSpace
 (as discussed in the [Concepts](#concepts) section above).
 
+In order to prepare for phase 3 (Update old items with new field values)
+your should create a CSV file containing only items which have been
+plucked out of the SAF. After running bin/erasaf_pluckitem.rb (which
+creates the file plucked_items_regex.txt) you can do that as below.
+```
+# Copy the header line from the earlier database extract
+head -1 itemHdl_colHdl_ResearchPubEra.csv > itemHdl_colHdl_ResearchPubEra_pluckedout.csv
+# Extract the plucked-out lines from the earlier database extract
+egrep -f plucked_items_regex.txt itemHdl_colHdl_ResearchPubEra.csv >> itemHdl_colHdl_ResearchPubEra_pluckedout.csv
+```
+
 ### bin/erasaf_mkimport.rb
 DSpace provides a tool to import a single SAF collection into DSpace.
 For the target ERA reporting-year, we wish to import over 150
@@ -226,7 +237,7 @@ updating certain database fields based on newer information in the
 RMIS SAF-tree (if applicable).
 
 The functionality of the program is controlled by a command line
-switch which can have the value 'add_forgroups' or 'replace_type.
+switch which can have the value 'add_forgroups' or 'replace_type'.
 
 - 'add_forgroups' switch: This program will compare each item's
   list of dc.subject.forgroup fields in the DSpace database with
@@ -243,7 +254,8 @@ switch which can have the value 'add_forgroups' or 'replace_type.
   PLUCKED_OUT_DIR). If the two fields are different, the database
   copy of the field will be replaced with the SAF copy (by
   running this script and importing the resulting CSV file using
-  the DSpace Batch Metadata Editing Tool).
+  the DSpace Batch Metadata Editing Tool). It expects one
+  dc.type field per item.
 
 
 ## CSV types used in the above workflow

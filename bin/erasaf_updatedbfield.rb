@@ -278,7 +278,6 @@ class Items4FieldUpdates
       db_hash[:fields].each{|f|
         forcode = f[:value].sub(forcode_regex, '\1')
         fields_in_db << forcode
-#STDERR.puts "@@@ db_hash item_id=#{item_id} forcode=#{forcode}"
         field_values[forcode] = f[:value].gsub(/[\s]+/, ' ')	# Store value for this FOR code
         @langs_in_db << f[:lang]
       }
@@ -286,7 +285,6 @@ class Items4FieldUpdates
       @items_from_saf[item_id][:fields].each{|f|
         forcode = f[:value].sub(forcode_regex, '\1')
         fields_in_saf << forcode
-#STDERR.puts "@@@ items_from_saf item_id=#{item_id} forcode=#{forcode}"
         field_values[forcode] = f[:value].gsub(/[\s]+/, ' ')	# Store/overwrite value for this FOR code
       }
       STDERR.printf("item_id=%s; item-hdl=%s; SAF-fields=%s; DB-fields=%s", item_id, db_hash[:handle], fields_in_saf.inspect, fields_in_db.inspect) if DEBUG

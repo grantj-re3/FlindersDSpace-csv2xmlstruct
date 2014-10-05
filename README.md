@@ -128,6 +128,33 @@ and hence supplies _all_ RMIDs for the target ERA reporting-year.
 However because this suite of programs is DSpace-aware, aspects
 regarding duplication and mapping are dealt with by this workflow.
 
+### Decide where to search in DSpace for existing RMIDs
+
+Before or very early in this workflow, you need to decide if you will
+look for items with RMIDs (ie. with a populated dc.identifier.rmid field)
+from the the whole of DSpace or from only within the top ERA community
+(called "Research Publications" in our case) whose children are
+ERA reporting-year communities (ie. ERA 2010 and ERA 2012).
+
+This decision affects:
+- the app which extracts items with RMIDs from the database ie. use
+  prep/itemHdl_colHdl_ResearchPubEra.sh (rather than
+  prep/itemHdl_colHdl_AllPub.sh)
+- the third command line argument to app bin/rmcsv2hdlcsv.rb (ie.
+  use the 2 handles representing the ERA 2010 and ERA 2012
+  communities rather than the argument 'any') 
+
+In our case, we decided to only look for items with RMIDs from
+under the Research Publications ERA-year communities rather
+than any item with an RMID from the whole of DSpace. This is because
+our phase 3 steps would be to update some ERA 2010 metadata
+fields (ie. dc.type and dc.subject.forgroup) and we would 
+prefer to only do this for items which are owned by (or mapped
+to) the ERA 2010 community rather than to items owned by others.
+
+(In the workflow test within the test folder, we allowed
+all of DSpace to be searched for items with RMIDs.)
+
 ### bin/csv2xmlstruct.rb
 Create a community/collection DSpace structure to hold items for the ERA
 target reporting-year (eg. ERA 2012). The structure is written to an XML

@@ -6,7 +6,7 @@
 #
 # PURPOSE
 #
-# Find all items in souce collection which have bitstreams and are not yet
+# Find all items in source collection which have bitstreams and are not yet
 # mapped to the destination collection, then create a BMET CSV file which
 # will map them to the destination collection.
 #
@@ -34,7 +34,7 @@ require 'dbc'
 
 ##############################################################################
 # A class for representing DSpace database items which are to be mapped
-# from the source collection to the destination collecition.
+# from the source collection to the destination collection.
 #
 # This program will produce a CSV file suitable for updating the item
 # mapping using the DSpace Batch Metadata Editing Tool (BMET).

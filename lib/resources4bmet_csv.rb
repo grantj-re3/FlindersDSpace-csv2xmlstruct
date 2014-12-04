@@ -57,8 +57,6 @@ class Resources4BmetCsv
       "#{csv_delimiter}#{csv_quote}#{col_names.join(VALUE_DELIMITER)}#{csv_quote}"
   end
 
-  private
-
   ############################################################################
   # Return the item name by performing a lookup-by-handle in the database.
   ############################################################################

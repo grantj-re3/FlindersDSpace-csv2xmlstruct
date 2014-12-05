@@ -363,7 +363,15 @@ This tool is not required for the above workflow, however we used it to
 delete the dc.language[.*] field within all SAF-tree dublin_core.xml files.
 Exercise great caution if you use this script!
 
-### prep/ itemHdl_colHdl_forgroup_ResearchPubEra.sh
+### utils/map_if_bitstream_wrap.sh
+
+This tool is not required for the above workflow, however we used it to
+map any items with a bitstream attached from a draft/initial ERA collection
+to a "final" ERA collection (where final means that all items within have a
+bitstream attached). The script is intended to be run via cron overnight.
+It invokes map_if_bitstream.rb.
+
+### prep/itemHdl_colHdl_forgroup_ResearchPubEra.sh
 
 This tool is not required for the above workflow, however we used it to
 backup ERA 2010 dc.subject.forgroup information (for later verification

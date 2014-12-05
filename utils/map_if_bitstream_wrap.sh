@@ -16,9 +16,9 @@ TIMESTAMP_PRETTY=`date "+%Y-%m-%d %H:%M:%S"`			# Timestamp for humans
 TIMESTAMP=`echo "$TIMESTAMP_PRETTY" |tr -d ":-" |tr ' ' .`	# Timestamp for filenames
 REF="Job reference: $TIMESTAMP"
 
-IMPORT_CMD="$HOME/dspace/bin/dspace metadata-import -s -f"
+IMPORT_CMD="$HOME/dspace/bin/dspace metadata-import -s -f"	# Customise
 
-BASE_DIR=$HOME/opt/importERA
+BASE_DIR=$HOME/opt/importERA					# Customise
 MK_BMET_CSV_CMD=$BASE_DIR/utils/map_if_bitstream.rb
 
 DEST_DIR=$BASE_DIR/map_if_bitstream
@@ -28,7 +28,7 @@ ERROR_LOG=$DEST_DIR/map_bmet.$TIMESTAMP.err
 IMPORT_LOG=$DEST_DIR/map_bmet.$TIMESTAMP.log
 
 # mailx: Space separated list of destination email addresses
-EMAIL_DEST_LIST="user@example.com"
+EMAIL_DEST_LIST="user@example.com"				# Customise
 EMAIL_SUBJECT="ERA item mapping report: $TIMESTAMP_PRETTY"
 EMAIL_SUBJECT_ERROR="ERA item mapping report ERROR: $TIMESTAMP_PRETTY"
 

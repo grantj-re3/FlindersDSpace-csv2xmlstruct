@@ -43,10 +43,10 @@ class Items4Mapping
   include DbConnection
   include DSpaceUtils
 
-  SOURCE_COLLECTION_HANDLE = '123456789/6225'
-  DEST_COLLECTION_HANDLE   = '123456789/6226'
+  SOURCE_COLLECTION_HANDLE = '123456789/6225'			# Customise
+  DEST_COLLECTION_HANDLE   = '123456789/6226'			# Customise
 
-  HANDLE_URL_LEFT_STRING = 'http://dspace.example.com/jsp/handle/'
+  HANDLE_URL_LEFT_STRING = 'http://dspace.example.com/jsp/handle/'	# Customise
 
   ############################################################################
   # Constructor for this object
@@ -120,6 +120,7 @@ class Items4Mapping
     PG::Connection.connect2(DB_CONNECT_INFO){|conn|
       conn.exec(sql){|result|
         result.each{|row|
+          #return if @items.length >= 2		# FOR TESTING: Limit the number of items processed
 
           @items << {
             # Required for BMET CSV file

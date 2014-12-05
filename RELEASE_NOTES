@@ -1,6 +1,9 @@
 FlindersDSpace-importERA
 ========================
 
+Release Notes
+-------------
+
 v1.0
 ----
 Initial version.  Has been used in a production environment for loading
@@ -10,4 +13,11 @@ High level features:
 - Phase 1 - Ingest new items
 - Phase 2 - Map items to multiple collections
 - Phase 3 - Update old items with new field values
+
+v1.1
+----
+Added tool utils/map_if_bitstream_wrap.sh to map any items with a
+bitstream attached from a draft/initial ERA collection to a "final"
+ERA collection (where final means that all items within have a
+bitstream attached)
 

@@ -92,7 +92,7 @@ https://svn.duraspace.org/dspace/dspace/trunk/dspace-api/src/main/java/org/dspac
 The values are given in the table below.
 
 resource_type_id | meaning of resource_id
------------------|--------------------
+-----------------|-----------------------
 0                | BITSTREAM
 1                | BUNDLE
 2                | ITEM
@@ -110,4 +110,27 @@ SQL fragment.
   ...
   LEFT OUTER JOIN handle h on (c2i.item_id = h.resource_id and h.resource_type_id = 2)
 ```
+
+The action_id column
+--------------------
+The action_id column from the resourcepolicy table can be used to
+extract policy actions for the resources listed above. The action_id
+values are defined in the same source code file
+[Constants.java](https://svn.duraspace.org/dspace/dspace/trunk/dspace-api/src/main/java/org/dspace/core/Constants.java).
+The values are given in the table below.
+
+action_id | meaning of action_id
+----------|---------------------
+0         | READ - Action of reading, viewing or downloading something
+1         | WRITE - Action of modifying something
+2         | DELETE - Action of deleting something. Obsolete.
+3         | ADD - Action of adding something to a container.
+4         | REMOVE - Action of removing something from a container.
+5         | WORKFLOW_STEP_1
+6         | WORKFLOW_STEP_2
+7         | WORKFLOW_STEP_3
+8         | WORKFLOW_ABORT
+9         | DEFAULT_BITSTREAM_READ - Default Read policies for Bitstreams submitted to container
+10        | DEFAULT_ITEM_READ - Default Read policies for Items submitted to container
+11        | ADMIN (v1.6 and later) - Administrative actions - System Admin, Community Admin, Collection Admin
 

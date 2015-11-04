@@ -1,18 +1,18 @@
 #!/usr/bin/ruby
 #--
-# Copyright (c) 2014, Flinders University, South Australia. All rights reserved.
+# Copyright (c) 2014-2015, Flinders University, South Australia. All rights reserved.
 # Contributors: Library, Information Services, Flinders University.
 # See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
 #
 # PURPOSE
 #
-# Find all items in source collection which have bitstreams and are not yet
-# mapped to the destination collection, then create a BMET CSV file which
-# will map them to the destination collection.
+# Find all items in the source collection (or all collections) which have
+# bitstreams and are not yet mapped to the destination collection, then
+# create a BMET CSV file which will map them to the destination collection.
 #
 # ALGORITHM
-# - Find all items in the DSpace source collection which have bitstreams
-#   and are not yet mapped to the destination collection
+# - Find all items in the DSpace source collection (or all collections) which
+#   have bitstreams and are not yet mapped to the destination collection
 # - Create a DSpace Batch Metadata Editing Tool (BMET) CSV file which will
 #   map them to the destination collection
 # - Send report via email
@@ -43,10 +43,16 @@ class Items4Mapping
   include DbConnection
   include DSpaceUtils
 
+  # true = source items from all collections (ie. ignore SOURCE_COLLECTION_HANDLE);
+  # false = source items from the collection specified by SOURCE_COLLECTION_HANDLE
+  IS_SOURCE_ALL_COLLECTIONS = false				# Customise
   SOURCE_COLLECTION_HANDLE = '123456789/6225'			# Customise
   DEST_COLLECTION_HANDLE   = '123456789/6226'			# Customise
 
   HANDLE_URL_LEFT_STRING = 'http://dspace.example.com/jsp/handle/'	# Customise
+
+  WILL_SHOW_RMID = true
+  MAX_ITEMS_TO_PROCESS = 300			# DSpace 3 manual recommends 1000 BMET records max
 
   ############################################################################
   # Constructor for this object
@@ -57,16 +63,34 @@ class Items4Mapping
 
   ############################################################################
   # Extract and return items from the database. These items:
-  # a) have not been withdrawn;
-  # b) are in the source collection (ie. SOURCE_COLLECTION_HANDLE);
-  # c) are not in the destination collection (ie. DEST_COLLECTION_HANDLE);
-  # d) have (non-licence) bitstreams attached (ie. bundle is 'ORIGINAL')
-  #    which have not been deleted
+  # - have not been withdrawn;
+  # - have been published (in_archive = 't' and owning_collection is not null
+  #   and exists in handle table);
+  # - are in the source collection (ie. SOURCE_COLLECTION_HANDLE) or all
+  #   collections;
+  # - are not in the destination collection (ie. DEST_COLLECTION_HANDLE);
+  # - have (non-licence) bitstreams attached (ie. bundle is 'ORIGINAL')
+  #   which have not been deleted and which have at least one bitstream
+  #   which is not under embargo
   #
   # Also, these items might be owned-by or mapped-to a collection which is
   # neither SOURCE_COLLECTION_HANDLE nor DEST_COLLECTION_HANDLE.
   ############################################################################
   def get_items_from_db
+    sql_source_clause = if IS_SOURCE_ALL_COLLECTIONS
+      <<-SQL_GET_ITEMS_FROM_ALL_COLLECTIONS.gsub(/^\t*/, '')
+	    item_id in (select item_id from collection2item)
+      SQL_GET_ITEMS_FROM_ALL_COLLECTIONS
+
+    else
+      <<-SQL_GET_ITEMS_FROM_SOURCE_COLLECTION.gsub(/^\t*/, '')
+	    item_id in
+	    (select item_id from collection2item where collection_id in
+	      (select resource_id from handle where resource_type_id=3 and handle='#{SOURCE_COLLECTION_HANDLE}')
+	    )
+      SQL_GET_ITEMS_FROM_SOURCE_COLLECTION
+    end
+
     sql = <<-SQL_GET_ITEMS.gsub(/^\t*/, '')
 	select
 	  i.item_id,
@@ -92,12 +116,13 @@ class Items4Mapping
 	  select distinct item_id, owning_collection
 	  from item
 	  where
-	    withdrawn<>'t' and
+	    withdrawn = 'f' and
 
-	    item_id in
-	    (select item_id from collection2item where collection_id in
-	      (select resource_id from handle where resource_type_id=3 and handle='#{SOURCE_COLLECTION_HANDLE}')
-	    ) and
+	    in_archive = 't' and
+            owning_collection is not null and
+            exists (select resource_id from handle h where h.resource_type_id=2 and h.resource_id=item_id) and
+
+            #{sql_source_clause} and
 
 	    item_id not in
 	    (select item_id from collection2item where collection_id in
@@ -108,7 +133,9 @@ class Items4Mapping
 	    (select item_id from item2bundle where bundle_id in
 	      (select bundle_id from bundle where name='ORIGINAL' and bundle_id in
 	        (select bundle_id from bundle2bitstream where bitstream_id in
-	          (select bitstream_id from bitstream where deleted<>'t' and source is not null)
+	          (select bitstream_id from bitstream where deleted<>'t' and bitstream_id not in
+                    (select resource_id from resourcepolicy where resource_type_id=0 and start_date > 'now')
+                  )
 	        )
 	      )
 	    )
@@ -120,7 +147,7 @@ class Items4Mapping
     PG::Connection.connect2(DB_CONNECT_INFO){|conn|
       conn.exec(sql){|result|
         result.each{|row|
-          #return if @items.length >= 2		# FOR TESTING: Limit the number of items processed
+          return if @items.length >= MAX_ITEMS_TO_PROCESS
 
           @items << {
             # Required for BMET CSV file
@@ -169,8 +196,8 @@ class Items4Mapping
     res = Resources4BmetCsv.new
     preamble = <<-REPORT_PREAMBLE.gsub(/^\t*/, '')
 	Program:                        #{File.basename($0)}
-	Source collection handle:       #{self.class.handle_to_url(SOURCE_COLLECTION_HANDLE)}
-	Source collection name:         #{res.lookup_collection_name(SOURCE_COLLECTION_HANDLE)}
+	Source collection handle:       #{IS_SOURCE_ALL_COLLECTIONS ? 'All collections' : self.class.handle_to_url(SOURCE_COLLECTION_HANDLE)}
+	Source collection name:         #{IS_SOURCE_ALL_COLLECTIONS ? 'All collections' : sres.lookup_collection_name(SOURCE_COLLECTION_HANDLE)}
 
 	Destination collection handle:  #{self.class.handle_to_url(DEST_COLLECTION_HANDLE)}
 	Destination collection name:    #{res.lookup_collection_name(DEST_COLLECTION_HANDLE)}
@@ -182,12 +209,24 @@ class Items4Mapping
     unless @items.empty?
       lines << "ITEMS BEING MAPPED:"
       lines << ""
-      lines << sprintf(" %s) %-11s %-53s %-5s %s",
-        "#","ItemRMID;","ItemHandle;","Id;","ItemTitle")
 
-      @items.each_with_index{|item, i|
-        lines << " #{i+1}) #{item[:dc_id_rmids]}; #{self.class.handle_to_url(item[:item_hdl])}; #{item[:item_id]}; #{item[:dc_titles]}"
-      }
+      hdl_width = [
+        "#{self.class.handle_to_url(@items.first[:item_hdl])};".length,
+        "ItemHandle;".length
+      ].max
+
+      if WILL_SHOW_RMID
+        lines << sprintf(" %s) %-11s %-#{hdl_width}s %-5s %s", "#","ItemRMID;","ItemHandle;","Id;","ItemTitle")
+        @items.each_with_index{|item, i|
+          lines << " #{i+1}) #{item[:dc_id_rmids]}; #{self.class.handle_to_url(item[:item_hdl])}; #{item[:item_id]}; #{item[:dc_titles]}"
+        }
+
+      else
+        lines << sprintf(" %s) %-#{hdl_width}s %-5s %s", "#","ItemHandle;","Id;","ItemTitle")
+        @items.each_with_index{|item, i|
+          lines << " #{i+1}) #{self.class.handle_to_url(item[:item_hdl])}; #{item[:item_id]}; #{item[:dc_titles]}"
+        }
+      end
     end
 
     preamble + lines.join(NEWLINE) + NEWLINE

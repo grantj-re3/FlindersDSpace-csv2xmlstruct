@@ -52,7 +52,13 @@ class Items4Mapping
   HANDLE_URL_LEFT_STRING = 'http://dspace.example.com/jsp/handle/'	# Customise
 
   WILL_SHOW_RMID = true
-  MAX_ITEMS_TO_PROCESS = 300			# DSpace 3 manual recommends 1000 BMET records max
+
+  MAX_ITEMS_TO_PROCESS = 100			# DSpace 3 manual recommends 1000 BMET records max
+  MAX_ITEMS_WARN_MSG = <<-MSG_WARN1.gsub(/^\t*/, '')
+	**WARNING**
+	  The number of new full-text items has reached the mapping run-limit of #{MAX_ITEMS_TO_PROCESS}.
+	  It is recommended that you check that this high-number of items is expected.
+  MSG_WARN1
 
   ############################################################################
   # Constructor for this object
@@ -195,6 +201,7 @@ class Items4Mapping
   def to_s_report
     res = Resources4BmetCsv.new
     preamble = <<-REPORT_PREAMBLE.gsub(/^\t*/, '')
+	#{@items.length >= MAX_ITEMS_TO_PROCESS ? MAX_ITEMS_WARN_MSG : ''}
 	Program:                        #{File.basename($0)}
 	Source collection handle:       #{IS_SOURCE_ALL_COLLECTIONS ? 'All collections' : self.class.handle_to_url(SOURCE_COLLECTION_HANDLE)}
 	Source collection name:         #{IS_SOURCE_ALL_COLLECTIONS ? 'All collections' : sres.lookup_collection_name(SOURCE_COLLECTION_HANDLE)}

@@ -204,7 +204,7 @@ class Items4Mapping
 	#{@items.length >= MAX_ITEMS_TO_PROCESS ? MAX_ITEMS_WARN_MSG : ''}
 	Program:                        #{File.basename($0)}
 	Source collection handle:       #{IS_SOURCE_ALL_COLLECTIONS ? 'All collections' : self.class.handle_to_url(SOURCE_COLLECTION_HANDLE)}
-	Source collection name:         #{IS_SOURCE_ALL_COLLECTIONS ? 'All collections' : sres.lookup_collection_name(SOURCE_COLLECTION_HANDLE)}
+	Source collection name:         #{IS_SOURCE_ALL_COLLECTIONS ? 'All collections' : res.lookup_collection_name(SOURCE_COLLECTION_HANDLE)}
 
 	Destination collection handle:  #{self.class.handle_to_url(DEST_COLLECTION_HANDLE)}
 	Destination collection name:    #{res.lookup_collection_name(DEST_COLLECTION_HANDLE)}

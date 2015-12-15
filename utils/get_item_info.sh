@@ -46,7 +46,7 @@ with
   delimiter ','
   csv
     header
-    force quote col_name, title
+    force quote collection_name, item_title
 "
 
 descr="Get item info"

@@ -51,7 +51,7 @@ class Items4Mapping
 
   HANDLE_URL_LEFT_STRING = 'http://dspace.example.com/jsp/handle/'	# Customise
 
-  WILL_SHOW_RMID = true
+  WILL_SHOW_RMID = true						# Customise
 
   MAX_ITEMS_TO_PROCESS = 100			# DSpace 3 manual recommends 1000 BMET records max
   MAX_ITEMS_WARN_MSG = <<-MSG_WARN1.gsub(/^\t*/, '')
@@ -100,6 +100,7 @@ class Items4Mapping
     sql = <<-SQL_GET_ITEMS.gsub(/^\t*/, '')
 	select
 	  i.item_id,
+	  i.last_modified,
 	  (select handle from handle where resource_type_id=2 and resource_id=i.item_id) item_hdl,
 	  (select handle from handle where resource_type_id=3 and resource_id=i.owning_collection) owning_collection_hdl,
 
@@ -119,7 +120,7 @@ class Items4Mapping
 	  ), '||') dc_titles
 	from
 	(
-	  select distinct item_id, owning_collection
+	  select distinct item_id, owning_collection, last_modified
 	  from item
 	  where
 	    withdrawn = 'f' and
@@ -162,6 +163,7 @@ class Items4Mapping
             :all_collection_hdls	=> row['all_collection_hdls'],
 
             # Only required for reporting
+            :last_modified		=> row['last_modified'],
             :item_hdl			=> row['item_hdl'],
             :dc_id_rmids		=> row['dc_id_rmids'],
             :dc_titles			=> row['dc_titles'],
@@ -222,16 +224,25 @@ class Items4Mapping
         "ItemHandle;".length
       ].max
 
+      lmod_width = [
+        "#{@items.first[:last_modified]};".length,
+        "LastModified;".length
+      ].max
+
       if WILL_SHOW_RMID
-        lines << sprintf(" %s) %-11s %-#{hdl_width}s %-5s %s", "#","ItemRMID;","ItemHandle;","Id;","ItemTitle")
+        fmt_str = "%4s) %-11s %-#{hdl_width}s %-6s %-#{lmod_width}s %s"
+        lines << sprintf(fmt_str, "#","ItemRMID;","ItemHandle;","Id;","LastModified;","ItemTitle")
         @items.each_with_index{|item, i|
-          lines << " #{i+1}) #{item[:dc_id_rmids]}; #{self.class.handle_to_url(item[:item_hdl])}; #{item[:item_id]}; #{item[:dc_titles]}"
+          lines << sprintf(fmt_str, i+1, item[:dc_id_rmids], self.class.handle_to_url(item[:item_hdl]),
+            item[:item_id], item[:last_modified], item[:dc_titles])
         }
 
       else
-        lines << sprintf(" %s) %-#{hdl_width}s %-5s %s", "#","ItemHandle;","Id;","ItemTitle")
+        fmt_str = "%4s) %-#{hdl_width}s %-6s %-#{lmod_width}s %s"
+        lines << sprintf(fmt_str, "#","ItemHandle;","Id;","LastModified;","ItemTitle")
         @items.each_with_index{|item, i|
-          lines << " #{i+1}) #{self.class.handle_to_url(item[:item_hdl])}; #{item[:item_id]}; #{item[:dc_titles]}"
+          lines << sprintf(fmt_str, i+1, self.class.handle_to_url(item[:item_hdl]),
+              item[:item_id], item[:last_modified], item[:dc_titles])
         }
       end
     end

@@ -42,8 +42,25 @@ select
       )
   ), '||') orig_bitstream_ids,
 
-  rp.start_date emb_start_date,
-  rp.rpdescription emb_description,
+  array_to_string(array(
+    select start_date from resourcepolicy where resource_type_id=1 and resource_id in
+      (select bundle_id from bundle where name='ORIGINAL' and bundle_id in
+        (select bundle_id from item2bundle where item_id=i.item_id)
+      )
+  ), '||') obundle_emb_start_date,
+  array_to_string(array(
+    select start_date from resourcepolicy where resource_type_id=0 and resource_id in
+      (select bitstream_id from bundle2bitstream where bundle_id in
+        (select bundle_id from bundle where name='ORIGINAL' and bundle_id in
+          (select bundle_id from item2bundle where item_id=i.item_id)
+        )
+      )
+  ), '||') obitstream_emb_start_date,
+  array_to_string(array(
+    select rp.start_date
+  ), '||') item_emb_start_date,
+
+  rp.rpdescription item_emb_description,
   col.name collection_name,
   (select text_value from metadatavalue where item_id=i.item_id and metadata_field_id=
     (select metadata_field_id from metadatafieldregistry where element='title' and qualifier is null)
@@ -73,7 +90,7 @@ with
   delimiter ','
   csv
     header
-    force quote emb_description, collection_name, item_title
+    force quote item_emb_description, collection_name, item_title
 "
 
 descr="Get item info"

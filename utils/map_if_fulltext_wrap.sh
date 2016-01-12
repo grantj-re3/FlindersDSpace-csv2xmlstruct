@@ -27,6 +27,8 @@ DEST_REPORT_HEADER=$DEST_DIR/map_report_hdr.$TIMESTAMP.txt
 DEST_CSV=$DEST_DIR/map_bmet.$TIMESTAMP.csv
 ERROR_LOG=$DEST_DIR/map_bmet.$TIMESTAMP.err
 IMPORT_LOG=$DEST_DIR/map_bmet.$TIMESTAMP.log
+SQL_FNAME=$DEST_DIR/map_bmet.$TIMESTAMP.sql
+SQL_LOG=$DEST_DIR/map_bmet.${TIMESTAMP}_sql.log
 
 # mailx: Space separated list of destination email addresses
 EMAIL_DEST_LIST="user@example.com"				# Customise
@@ -47,6 +49,7 @@ email_exit_on_error() {
   if [ $error_code != 0 ]; then
     opts_attachments="-a $DEST_REPORT"
     [ -f $IMPORT_LOG ] && opts_attachments="$opts_attachments -a $IMPORT_LOG"
+    [ -f $SQL_LOG ] && opts_attachments="$opts_attachments -a $SQL_LOG"
     (
       echo "$REF"
       echo
@@ -57,6 +60,25 @@ email_exit_on_error() {
     ) | mailx $opts_attachments -s "$EMAIL_SUBJECT_ERROR" $EMAIL_DEST_LIST
     exit $error_code
   fi
+}
+
+##############################################################################
+# If we map the item into a new collection we should update the last_modified
+# field (so that it appears in OAI-PMH for the newly mapped collection).
+# This may not be necessary if the DSpace 3.1 embargo-lifter were to update
+# the last_modified field (but it doesn't appear to).
+##############################################################################
+fix_last_modified() {
+  awk -F, '
+    NR>1 {
+      printf("select h.handle, i.item_id, i.last_modified, now() from item i, handle h where h.resource_type_id=2 and i.item_id=h.resource_id and i.item_id='\''%s'\'';\n", $1)
+
+      #printf("update item set last_modified=now() where item_id='\''%s'\'' and last_modified < (now() - interval '\''22 hours'\'');\n", $1)
+      printf("update item set last_modified=now() where item_id='\''%s'\'';\n", $1)
+    }
+  ' $DEST_CSV > $SQL_FNAME
+  psql -f $SQL_FNAME >> $SQL_LOG 2>&1
+  return $?
 }
 
 ##############################################################################
@@ -76,6 +98,9 @@ email_exit_on_error $res Ruby
 if [ `wc -l < $DEST_CSV` -ge 2 ]; then		# At least 1 item to import
   $IMPORT_CMD $DEST_CSV 2>&1 > $IMPORT_LOG	# Perform BMET import
   email_exit_on_error $? Import
+
+  fix_last_modified
+  email_exit_on_error $? FixLastModified
 fi
 
 opts_attachments="-a $DEST_REPORT"

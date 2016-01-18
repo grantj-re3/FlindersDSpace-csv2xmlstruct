@@ -12,9 +12,19 @@
 # - Send an email report.
 ##############################################################################
 PATH=/bin:/usr/bin:/usr/local/bin ; export PATH
+
+# 1=Dry run; 0=Real run.
+# A dry run will run most features and generate most log files. If the BMET
+# CSV file and fix_last_modified() SQL file would normally be generated, then
+# they will be. A dry run will *bypass* execution of BMET import (ie. item
+# mapping) and execution of SQL file to update the last_modified field.
+IS_DRY_RUN=0							# Customise
+DRY_RUN_PREFIX="DRY RUN: "
+[ $IS_DRY_RUN = 0 ] && DRY_RUN_PREFIX=""
+
 TIMESTAMP_PRETTY=`date "+%Y-%m-%d %H:%M:%S"`			# Timestamp for humans
 TIMESTAMP=`echo "$TIMESTAMP_PRETTY" |tr -d ":-" |tr ' ' .`	# Timestamp for filenames
-REF="Job reference: $TIMESTAMP"
+REF="Job reference: $DRY_RUN_PREFIX$TIMESTAMP"
 
 IMPORT_CMD="$HOME/dspace/bin/dspace metadata-import -s -f"	# Customise
 
@@ -24,6 +34,7 @@ MK_BMET_CSV_CMD=$BASE_DIR/utils/map_if_bitstream.rb
 DEST_DIR=$BASE_DIR/map_if_fulltext
 DEST_REPORT=$DEST_DIR/map_report.$TIMESTAMP.txt
 DEST_REPORT_HEADER=$DEST_DIR/map_report_hdr.$TIMESTAMP.txt
+DEST_REPORT_DRY_RUN=$DEST_DIR/map_report$TIMESTAMP.dryrun
 DEST_CSV=$DEST_DIR/map_bmet.$TIMESTAMP.csv
 ERROR_LOG=$DEST_DIR/map_bmet.$TIMESTAMP.err
 IMPORT_LOG=$DEST_DIR/map_bmet.$TIMESTAMP.log
@@ -32,8 +43,8 @@ SQL_LOG=$DEST_DIR/map_bmet.${TIMESTAMP}_sql.log
 
 # mailx: Space separated list of destination email addresses
 EMAIL_DEST_LIST="user@example.com"				# Customise
-EMAIL_SUBJECT="FAC full-text mapping report: $TIMESTAMP_PRETTY"
-EMAIL_SUBJECT_ERROR="FAC full-text mapping report ERROR: $TIMESTAMP_PRETTY"
+EMAIL_SUBJECT="${DRY_RUN_PREFIX}FAC full-text mapping report: $TIMESTAMP_PRETTY"
+EMAIL_SUBJECT_ERROR="${DRY_RUN_PREFIX}FAC full-text mapping report ERROR: $TIMESTAMP_PRETTY"
 
 ##############################################################################
 # email_exit_on_error(error_code, error_type)
@@ -77,7 +88,10 @@ fix_last_modified() {
       printf("update item set last_modified=now() where item_id='\''%s'\'';\n", $1)
     }
   ' $DEST_CSV > $SQL_FNAME
-  psql -f $SQL_FNAME >> $SQL_LOG 2>&1
+
+  cmd="echo \"${DRY_RUN_PREFIX}FixLastModified\" >> $SQL_LOG 2>&1"	# Dummy command
+  [ $IS_DRY_RUN = 0 ] && cmd="psql -f $SQL_FNAME >> $SQL_LOG 2>&1"	# Update DB
+  eval $cmd
   return $?
 }
 
@@ -85,6 +99,8 @@ fix_last_modified() {
 # Main()
 ##############################################################################
 [ ! -d $DEST_DIR ] && mkdir $DEST_DIR
+[ $IS_DRY_RUN != 0 ] && touch $DEST_REPORT_DRY_RUN	# Show that logs are for a dry run
+
 $MK_BMET_CSV_CMD > $DEST_CSV 2> $DEST_REPORT	# Create BMET CSV file
 res=$?
 awk '
@@ -96,7 +112,9 @@ awk '
 email_exit_on_error $res Ruby
 
 if [ `wc -l < $DEST_CSV` -ge 2 ]; then		# At least 1 item to import
-  $IMPORT_CMD $DEST_CSV 2>&1 > $IMPORT_LOG	# Perform BMET import
+  cmd="echo \"${DRY_RUN_PREFIX}Import\" 2>&1 > $IMPORT_LOG"		# Dummy command
+  [ $IS_DRY_RUN = 0 ] && cmd="$IMPORT_CMD $DEST_CSV 2>&1 > $IMPORT_LOG"	# Perform BMET import
+  eval $cmd
   email_exit_on_error $? Import
 
   fix_last_modified

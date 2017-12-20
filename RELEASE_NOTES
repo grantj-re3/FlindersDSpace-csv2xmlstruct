@@ -6,8 +6,11 @@ Release Notes
 
 v1.0
 ----
+
+Compatible with DSpace 3.1.
+
 Initial version.  Has been used in a production environment for loading
-ERA 2012 metadata into DSpace 3.1.
+ERA 2012 metadata into DSpace.
 
 High level features:
 - Phase 1 - Ingest new items
@@ -16,8 +19,31 @@ High level features:
 
 v1.1
 ----
+
+Compatible with DSpace 3.1.
+
 Added tool utils/map_if_bitstream_wrap.sh to map any items with a
 bitstream attached from a draft/initial ERA collection to a "final"
 ERA collection (where final means that all items within have a
 bitstream attached)
+
+v1.2
+----
+
+Compatible with DSpace 3.1.
+
+Added tool utils/get_item_info.sh
+
+Added tool utils/map_if_fulltext_wrap.sh. Similar to map_if_bitstream_wrap.sh
+but the objective is to map any items (in any collection) containing
+non-embargoed full-text into a full-text collection. The intent is that
+OAI-PMH harvesters can choose to harvest this collection (instead of the
+whole of DSpace) in order to only obtain items with full-text. This is
+because metadata-only items can be confusing to users. The following
+features are included.
+- Updates the last_modified field when we map an item with full-text so
+  that incremental OAI-PMH behaves properly for the "full-text collection"
+  set (particularly for items where an embargo has been lifted).
+- Has a MAX_ITEMS_TO_PROCESS parameter.
+- Has a IS_DRY_RUN feature.
 

@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 #--
-# Copyright (c) 2014-2015, Flinders University, South Australia. All rights reserved.
-# Contributors: Library, Information Services, Flinders University.
+# Copyright (c) 2014-2017, Flinders University, South Australia. All rights reserved.
+# Contributors: Library, Corporate Services, Flinders University.
 # See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
 #
 # PURPOSE
@@ -40,8 +40,7 @@ require 'dbc'
 # mapping using the DSpace Batch Metadata Editing Tool (BMET).
 ##############################################################################
 class Items4Mapping
-  include DbConnection
-  include DSpaceUtils
+  include DSpacePgUtils
 
   # true = source items from all collections (ie. ignore SOURCE_COLLECTION_HANDLE);
   # false = source items from the collection specified by SOURCE_COLLECTION_HANDLE
@@ -49,7 +48,7 @@ class Items4Mapping
   SOURCE_COLLECTION_HANDLE = '123456789/6225'			# Customise
   DEST_COLLECTION_HANDLE   = '123456789/6226'			# Customise
 
-  HANDLE_URL_LEFT_STRING = 'http://dspace.example.com/jsp/handle/'	# Customise
+  HANDLE_URL_LEFT_STRING = 'https://dspace.example.com/xmlui/handle/'	# Customise
 
   WILL_SHOW_RMID = true						# Customise
 
@@ -92,30 +91,51 @@ class Items4Mapping
       <<-SQL_GET_ITEMS_FROM_SOURCE_COLLECTION.gsub(/^\t*/, '')
 	    item_id in
 	    (select item_id from collection2item where collection_id in
-	      (select resource_id from handle where resource_type_id=3 and handle='#{SOURCE_COLLECTION_HANDLE}')
+	      (select resource_id from handle where resource_type_id=#{RESOURCE_TYPE_IDS[:collection]} and handle='#{SOURCE_COLLECTION_HANDLE}')
 	    )
       SQL_GET_ITEMS_FROM_SOURCE_COLLECTION
+    end
+
+    sql_dc_field_select_clause = if Resources4BmetCsv.are_object_names_in_metadatavalue
+      "select text_value from metadatavalue where resource_type_id=#{RESOURCE_TYPE_IDS[:item]} and resource_id=i.item_id and metadata_field_id in"
+    else
+      "select text_value from metadatavalue where item_id=i.item_id and metadata_field_id ="
+    end
+
+    sql_bundle_id_in_clause = if Resources4BmetCsv.are_object_names_in_metadatavalue
+      <<-SQL_ITEM_ID_IN1.gsub(/^\t*/, '')
+              (select resource_id from metadatavalue where text_value='ORIGINAL' and resource_type_id=#{RESOURCE_TYPE_IDS[:bundle]} and metadata_field_id in
+                (select metadata_field_id from metadatafieldregistry where element='title' and qualifier is null)
+              )
+      SQL_ITEM_ID_IN1
+
+    else
+      <<-SQL_ITEM_ID_IN2.gsub(/^\t*/, '')
+	      (select bundle_id from bundle where name='ORIGINAL' and bundle_id in
+	      )
+      SQL_ITEM_ID_IN2
+
     end
 
     sql = <<-SQL_GET_ITEMS.gsub(/^\t*/, '')
 	select
 	  i.item_id,
 	  i.last_modified,
-	  (select handle from handle where resource_type_id=2 and resource_id=i.item_id) item_hdl,
-	  (select handle from handle where resource_type_id=3 and resource_id=i.owning_collection) owning_collection_hdl,
+	  (select handle from handle where resource_type_id=#{RESOURCE_TYPE_IDS[:item]} and resource_id=i.item_id) item_hdl,
+	  (select handle from handle where resource_type_id=#{RESOURCE_TYPE_IDS[:collection]} and resource_id=i.owning_collection) owning_collection_hdl,
 
 	  array_to_string(array(
-	    select handle from handle where resource_type_id=3 and resource_id in
+	    select handle from handle where resource_type_id=#{RESOURCE_TYPE_IDS[:collection]} and resource_id in
 	      (select collection_id from collection2item where item_id=i.item_id)
 	  ), '||') all_collection_hdls,
 
 	  array_to_string(array(
-	    select text_value from metadatavalue where item_id=i.item_id and metadata_field_id =
+            #{sql_dc_field_select_clause}
 	      (select metadata_field_id from metadatafieldregistry where element='identifier' and qualifier='rmid')
 	  ), '||') dc_id_rmids,
 
 	  array_to_string(array(
-	    select text_value from metadatavalue where item_id=i.item_id and metadata_field_id =
+            #{sql_dc_field_select_clause}
 	      (select metadata_field_id from metadatafieldregistry where element='title' and qualifier is null)
 	  ), '||') dc_titles
 	from
@@ -127,25 +147,25 @@ class Items4Mapping
 
 	    in_archive = 't' and
             owning_collection is not null and
-            exists (select resource_id from handle h where h.resource_type_id=2 and h.resource_id=item_id) and
+            exists (select resource_id from handle h where h.resource_type_id=#{RESOURCE_TYPE_IDS[:item]} and h.resource_id=item_id) and
 
             #{sql_source_clause} and
 
 	    item_id not in
 	    (select item_id from collection2item where collection_id in
-	      (select resource_id from handle where resource_type_id=3 and handle='#{DEST_COLLECTION_HANDLE}')
+	      (select resource_id from handle where resource_type_id=#{RESOURCE_TYPE_IDS[:collection]} and handle='#{DEST_COLLECTION_HANDLE}')
 	    ) and
 
 	    item_id in
-	    (select item_id from item2bundle where bundle_id in
-	      (select bundle_id from bundle where name='ORIGINAL' and bundle_id in
-	        (select bundle_id from bundle2bitstream where bitstream_id in
-	          (select bitstream_id from bitstream where deleted<>'t' and bitstream_id not in
-                    (select resource_id from resourcepolicy where resource_type_id=0 and start_date > 'now')
-                  )
-	        )
-	      )
-	    )
+            (select item_id from item2bundle where bundle_id in
+              #{sql_bundle_id_in_clause}
+            and bundle_id in
+              (select bundle_id from bundle2bitstream where bitstream_id in
+                (select bitstream_id from bitstream where deleted<>'t' and bitstream_id not in
+                  (select resource_id from resourcepolicy where resource_type_id=#{RESOURCE_TYPE_IDS[:bitstream]} and start_date > 'now')
+                )
+              )
+            )
 	) i
 	order by i.item_id;
     SQL_GET_ITEMS

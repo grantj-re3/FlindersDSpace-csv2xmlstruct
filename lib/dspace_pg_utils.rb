@@ -1,6 +1,6 @@
 #--
-# Copyright (c) 2014, Flinders University, South Australia. All rights reserved.
-# Contributors: eResearch@Flinders, Library, Information Services, Flinders University.
+# Copyright (c) 2014-2017, Flinders University, South Australia. All rights reserved.
+# Contributors: Library, Corporate Services, Flinders University.
 # See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
 #++
 
@@ -24,6 +24,8 @@ module DSpacePgUtils
   # This hash shows the relationship between the DSpace handle table's
   # resource_type_id and its type. ie. RESOURCE_TYPE_IDS[type] = resource_type_id
   RESOURCE_TYPE_IDS = {
+    :bitstream	=> 0,
+    :bundle	=> 1,
     :item	=> 2,
     :collection	=> 3,
     :community	=> 4,

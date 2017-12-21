@@ -1,8 +1,8 @@
 #!/bin/sh
 # map_if_fulltext_wrap.sh
 #
-# Copyright (c) 2015, Flinders University, South Australia. All rights reserved.
-# Contributors: Library, Information Services, Flinders University.
+# Copyright (c) 2015-2017, Flinders University, South Australia. All rights reserved.
+# Contributors: Library, Corporate Services, Flinders University.
 # See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
 #
 # PURPOSE:
@@ -41,10 +41,17 @@ IMPORT_LOG=$DEST_DIR/map_bmet.$TIMESTAMP.log
 SQL_FNAME=$DEST_DIR/map_bmet.$TIMESTAMP.sql
 SQL_LOG=$DEST_DIR/map_bmet.${TIMESTAMP}_sql.log
 
+# Set SQL command. Optionally override for testing, etc. See ENV_FNAME below.
+SQL_CMD="psql"
+
 # mailx: Space separated list of destination email addresses
 EMAIL_DEST_LIST="user@example.com"				# Customise
 EMAIL_SUBJECT="${DRY_RUN_PREFIX}FAC full-text mapping report: $TIMESTAMP_PRETTY"
 EMAIL_SUBJECT_ERROR="${DRY_RUN_PREFIX}FAC full-text mapping report ERROR: $TIMESTAMP_PRETTY"
+
+# Optionally override any of the above variables. Eg. SQL_CMD
+ENV_FNAME=$BASE_DIR/utils/map_if_fulltext_wrap_env.sh
+[ -f $ENV_FNAME ] && . $ENV_FNAME
 
 ##############################################################################
 # email_exit_on_error(error_code, error_type)
@@ -90,7 +97,7 @@ fix_last_modified() {
   ' $DEST_CSV > $SQL_FNAME
 
   cmd="echo \"${DRY_RUN_PREFIX}FixLastModified\" >> $SQL_LOG 2>&1"	# Dummy command
-  [ $IS_DRY_RUN = 0 ] && cmd="psql -f $SQL_FNAME >> $SQL_LOG 2>&1"	# Update DB
+  [ $IS_DRY_RUN = 0 ] && cmd="$SQL_CMD -f $SQL_FNAME >> $SQL_LOG 2>&1"	# Update DB
   eval $cmd
   return $?
 }

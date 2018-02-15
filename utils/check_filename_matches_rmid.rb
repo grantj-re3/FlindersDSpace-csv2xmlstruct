@@ -43,11 +43,10 @@ require 'pg_extra'
 require 'dbc'
 
 ##############################################################################
-# A class for representing DSpace database items which are to be mapped
-# from the source collection to the destination collection.
+# A class for representing DSpace database items which are to be checked.
 #
-# This program will produce a CSV file suitable for updating the item
-# mapping using the DSpace Batch Metadata Editing Tool (BMET).
+# This program will produce a CSV file listing bitstream filenames which
+# do not comply with naming rules.
 ##############################################################################
 class Items4Checking
   include DSpacePgUtils

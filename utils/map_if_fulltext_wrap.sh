@@ -41,7 +41,7 @@ IMPORT_LOG=$DEST_DIR/map_bmet.$TIMESTAMP.log
 SQL_FNAME=$DEST_DIR/map_bmet.$TIMESTAMP.sql
 SQL_LOG=$DEST_DIR/map_bmet.${TIMESTAMP}_sql.log
 
-# Set SQL command. Optionally override for testing, etc. See ENV_FNAME below.
+# Customise: Set SQL command. See ENV_PATH below.
 SQL_CMD="psql"
 
 # mailx: Space separated list of destination email addresses
@@ -49,9 +49,10 @@ EMAIL_DEST_LIST="user@example.com"				# Customise
 EMAIL_SUBJECT="${DRY_RUN_PREFIX}FAC full-text mapping report: $TIMESTAMP_PRETTY"
 EMAIL_SUBJECT_ERROR="${DRY_RUN_PREFIX}FAC full-text mapping report ERROR: $TIMESTAMP_PRETTY"
 
+##############################################################################
 # Optionally override any of the above variables. Eg. SQL_CMD
-ENV_FNAME=$BASE_DIR/utils/map_if_fulltext_wrap_env.sh
-[ -f $ENV_FNAME ] && . $ENV_FNAME
+ENV_PATH="`echo \"$0\" |sed 's/\.sh$/_env.sh/'`"      # Path to THIS_env.sh
+[ -f $ENV_PATH ] && . $ENV_PATH
 
 ##############################################################################
 # email_exit_on_error(error_code, error_type)

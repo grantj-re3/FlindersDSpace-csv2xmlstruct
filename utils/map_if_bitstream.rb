@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 #--
-# Copyright (c) 2014-2017, Flinders University, South Australia. All rights reserved.
+# Copyright (c) 2014-2019, Flinders University, South Australia. All rights reserved.
 # Contributors: Library, Corporate Services, Flinders University.
 # See the accompanying LICENSE file (or http://opensource.org/licenses/BSD-3-Clause).
 #
@@ -22,11 +22,13 @@
 
 # Add dirs to the library path
 $: << File.expand_path("../lib", File.dirname(__FILE__))
+$: << File.expand_path(".", File.dirname(__FILE__))
 $: << "#{ENV['HOME']}/.ds/etc"
 
 require 'dspace_utils'
 require 'resources4bmet_csv'
 require 'object_extra'
+require 'map_if_bitstream_config'
 require 'rubygems'
 require 'pg'
 require 'pg_extra'
@@ -41,23 +43,7 @@ require 'dbc'
 ##############################################################################
 class Items4Mapping
   include DSpacePgUtils
-
-  # true = source items from all collections (ie. ignore SOURCE_COLLECTION_HANDLE);
-  # false = source items from the collection specified by SOURCE_COLLECTION_HANDLE
-  IS_SOURCE_ALL_COLLECTIONS = false				# Customise
-  SOURCE_COLLECTION_HANDLE = '123456789/6225'			# Customise
-  DEST_COLLECTION_HANDLE   = '123456789/6226'			# Customise
-
-  HANDLE_URL_LEFT_STRING = 'https://dspace.example.com/xmlui/handle/'	# Customise
-
-  WILL_SHOW_RMID = true						# Customise
-
-  MAX_ITEMS_TO_PROCESS = 100			# DSpace 3 manual recommends 1000 BMET records max
-  MAX_ITEMS_WARN_MSG = <<-MSG_WARN1.gsub(/^\t*/, '')
-	**WARNING**
-	  The number of new full-text items has reached the mapping run-limit of #{MAX_ITEMS_TO_PROCESS}.
-	  It is recommended that you check that this high-number of items is expected.
-  MSG_WARN1
+  include Items4MappingConfig
 
   ############################################################################
   # Constructor for this object
@@ -117,6 +103,7 @@ class Items4Mapping
 
     end
 
+    s_excl_coll_hdls = FULL_EXCLUDE_COLLECTION_HANDLES.map{|s| "'#{s}'"}.join(", ")
     sql = <<-SQL_GET_ITEMS.gsub(/^\t*/, '')
 	select
 	  i.item_id,
@@ -153,7 +140,7 @@ class Items4Mapping
 
 	    item_id not in
 	    (select item_id from collection2item where collection_id in
-	      (select resource_id from handle where resource_type_id=#{RESOURCE_TYPE_IDS[:collection]} and handle='#{DEST_COLLECTION_HANDLE}')
+	      (select resource_id from handle where resource_type_id=#{RESOURCE_TYPE_IDS[:collection]} and handle in (#{s_excl_coll_hdls}))
 	    ) and
 
 	    item_id in

@@ -88,7 +88,7 @@ used to extract handle info for items, collections and communities by:
 
 The resource_type_id values do not seem to be defined in the database or
 documentation, but are defined in the source code at URL
-https://svn.duraspace.org/dspace/dspace/trunk/dspace-api/src/main/java/org/dspace/core/Constants.java
+https://github.com/DSpace/DSpace/blob/dspace-5.8/dspace-api/src/main/java/org/dspace/core/Constants.java
 The values are given in the table below.
 
 resource_type_id | meaning of resource_id
@@ -116,7 +116,7 @@ The action_id column
 The action_id column from the resourcepolicy table can be used to
 extract policy actions for the resources listed above. The action_id
 values are defined in the same source code file
-[Constants.java](https://svn.duraspace.org/dspace/dspace/trunk/dspace-api/src/main/java/org/dspace/core/Constants.java).
+[Constants.java](https://github.com/DSpace/DSpace/blob/dspace-5.8/dspace-api/src/main/java/org/dspace/core/Constants.java).
 The values are given in the table below.
 
 action_id | meaning of action_id
@@ -124,13 +124,14 @@ action_id | meaning of action_id
 0         | READ - Action of reading, viewing or downloading something
 1         | WRITE - Action of modifying something
 2         | DELETE - Action of deleting something. Obsolete.
-3         | ADD - Action of adding something to a container.
-4         | REMOVE - Action of removing something from a container.
-5         | WORKFLOW_STEP_1
-6         | WORKFLOW_STEP_2
-7         | WORKFLOW_STEP_3
+3         | ADD - Action of adding something to a container. For example, to add an item to a collection, a user must have ADD permission on the collection.
+4         | REMOVE - Action of removing something from a container. Different from deletion.
+5         | WORKFLOW_STEP_1 - Action of performing workflow step 1
+6         | WORKFLOW_STEP_2 - Action of performing workflow step 2
+7         | WORKFLOW_STEP_3 - Action of performing workflow step 3
 8         | WORKFLOW_ABORT
 9         | DEFAULT_BITSTREAM_READ - Default Read policies for Bitstreams submitted to container
 10        | DEFAULT_ITEM_READ - Default Read policies for Items submitted to container
 11        | ADMIN (v1.6 and later) - Administrative actions - System Admin, Community Admin, Collection Admin
+12        | WITHDRAWN_READ
 
